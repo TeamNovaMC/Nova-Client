@@ -40,27 +40,6 @@ Nova Client supports all **Minecraft Bedrock Edition platforms** through MITM in
 
 ---
 
-## 🛠️ How to Build
-
-To build Nova Client using **Android Studio**, follow these steps:
-
-1. **Compile Nova Relay**:  
-   Follow the build instructions here:  
-   [https://github.com/RadiantByte/Nova-Relay](https://github.com/RadiantByte/Nova-Relay)
-
-2. After compiling Nova Relay, locate the generated file:
-
-3. **Copy `NovaRelay.jar` into this project**:  
-   Place the `.jar` file inside:
-
-4. **Open Nova Client in Android Studio**.
-
-5. **Assemble the APK**:  
-   Go to **Build → Assemble 'app'**.  
-   After building, the APK will be located at:
-
----
-
 ## 🎮 Module Categories
 
 Nova Client includes comprehensive modules organized into categories:
@@ -68,8 +47,6 @@ Nova Client includes comprehensive modules organized into categories:
 - **Combat**: Enhanced PvP capabilities and combat utilities
 - **Motion**: Movement enhancements and mobility features
 - **Visual**: Rendering improvements and visual aids
-- **Particle**: Particle effects and visual enhancements
-- **Effects**: Add or remove Minecraft in-game effects
 - **Misc**: Miscellaneous utilities and quality-of-life features
 
 ---
