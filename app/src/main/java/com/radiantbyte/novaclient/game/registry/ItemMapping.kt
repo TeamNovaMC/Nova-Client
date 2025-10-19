@@ -29,7 +29,7 @@ class ItemMapping(private val runtimeToItem: Map<Int, ItemDefinition>) : Definit
                     val id = obj.get("id")?.asInt ?: continue
                     val name = obj.get("name")?.asString ?: "unknown"
 
-                    val definition = com.radiantbyte.novaclient.game.registry.ItemDefinition(id, name, emptyArray())
+                    val definition = ItemDefinition(id, name)
                     map[id] = definition
                 }
 
@@ -38,12 +38,4 @@ class ItemMapping(private val runtimeToItem: Map<Int, ItemDefinition>) : Definit
         }
     }
 
-    class Provider(context: Context) : MappingProvider<ItemMapping>(context) {
-        override val assetPath: String
-            get() = "mcpedata/items"
-
-        override fun readMapping(version: Short): ItemMapping {
-            return read(context, version)
-        }
-    }
 }

@@ -7,11 +7,8 @@ import com.radiantbyte.novaclient.game.registry.BlockMapping
 import com.radiantbyte.novaclient.game.registry.BlockMappingProvider
 import com.radiantbyte.novaclient.game.registry.ItemMapping
 import com.radiantbyte.novaclient.game.registry.ItemMappingProvider
-import com.radiantbyte.novaclient.game.registry.LegacyBlockMapping
-import com.radiantbyte.novaclient.game.registry.LegacyBlockMappingProvider
 import com.radiantbyte.novaclient.game.world.Level
 import com.radiantbyte.novarelay.NovaRelaySession
-import net.kyori.adventure.text.Component
 import org.cloudburstmc.protocol.bedrock.data.definitions.ItemDefinition
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket
 import org.cloudburstmc.protocol.bedrock.packet.ItemComponentPacket
@@ -32,11 +29,9 @@ class GameSession(val novaRelaySession: NovaRelaySession) : ComposedPacketHandle
 
     private val blockMappingProvider = BlockMappingProvider(mappingProviderContext)
     private val itemMappingProvider = ItemMappingProvider(mappingProviderContext)
-    private val legacyBlockMappingProvider = LegacyBlockMappingProvider(mappingProviderContext)
 
     lateinit var blockMapping: BlockMapping
     lateinit var itemMapping: ItemMapping
-    lateinit var legacyBlockMapping: LegacyBlockMapping
 
     private var startGameReceived = false
 
@@ -71,7 +66,6 @@ class GameSession(val novaRelaySession: NovaRelaySession) : ComposedPacketHandle
                     try {
                         blockMapping = blockMappingProvider.craftMapping(protocolVersion)
                         itemMapping = itemMappingProvider.craftMapping(protocolVersion)
-                        legacyBlockMapping = legacyBlockMappingProvider.craftMapping(protocolVersion)
 
                         Log.i("GameSession", "Loaded mappings for protocol $protocolVersion")
                     } catch (e: Exception) {

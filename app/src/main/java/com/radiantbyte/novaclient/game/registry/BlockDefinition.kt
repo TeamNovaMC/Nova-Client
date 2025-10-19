@@ -1,8 +1,6 @@
 package com.radiantbyte.novaclient.game.registry
 
-import org.cloudburstmc.nbt.NbtMap
-
-open class BlockDefinition(private val runtimeId: Int, val identifier: String, val states: NbtMap):
+open class BlockDefinition(private val runtimeId: Int, val identifier: String):
     org.cloudburstmc.protocol.bedrock.data.definitions.BlockDefinition {
 
     override fun getRuntimeId() = runtimeId
@@ -12,4 +10,4 @@ open class BlockDefinition(private val runtimeId: Int, val identifier: String, v
     }
 }
 
-class UnknownBlockDefinition(runtimeId: Int): BlockDefinition(runtimeId, "minecraft:unknown", NbtMap.EMPTY)
+class UnknownBlockDefinition(runtimeId: Int): BlockDefinition(runtimeId, "minecraft:unknown")
