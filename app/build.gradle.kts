@@ -89,12 +89,9 @@ android {
     }
 }
 
-fun DependencyHandler.implementationRelay() {
-    implementation(files("libs/NovaRelay.jar"))
-}
-
 dependencies {
-    implementationRelay()
+    implementation(project(":relay"))
+    implementation(libs.gson)
     implementation(libs.kotlinx.serialization.json.jvm)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
