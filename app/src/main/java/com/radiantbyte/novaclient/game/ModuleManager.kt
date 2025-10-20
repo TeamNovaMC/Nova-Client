@@ -52,7 +52,6 @@ import com.radiantbyte.novaclient.game.module.misc.NoChatModule
 import com.radiantbyte.novaclient.game.module.motion.NoClipModule
 import com.radiantbyte.novaclient.game.module.misc.PieChartModule
 import com.radiantbyte.novaclient.game.module.misc.PositionLoggerModule
-import com.radiantbyte.novaclient.game.module.misc.RealXPModule
 import com.radiantbyte.novaclient.game.module.misc.ReplayModule
 import com.radiantbyte.novaclient.game.module.misc.WaterMarkModule
 import com.radiantbyte.novaclient.game.module.visual.TimeShiftModule
@@ -87,6 +86,7 @@ import com.radiantbyte.novaclient.game.module.visual.SpeedDisplayModule
 import com.radiantbyte.novaclient.game.module.visual.WorldStateModule
 import com.radiantbyte.novaclient.game.module.visual.ZoomModule
 import com.radiantbyte.novaclient.game.module.misc.ChestStealerModule
+import com.radiantbyte.novaclient.game.module.visual.TargetHudModule
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -161,7 +161,6 @@ object ModuleManager {
             add(ExplosionParticleModule())
             add(BubbleParticleModule())
             add(HeartParticleModule())
-            add(RealXPModule())
             add(FakeXPModule())
             add(DustParticleModule())
             add(EyeOfEnderDeathParticleModule())
@@ -189,6 +188,7 @@ object ModuleManager {
             add(CoordinatesModule())
             add(PieChartModule())
             add(ChestStealerModule())
+            add(TargetHudModule())
         }
     }
 
