@@ -94,7 +94,7 @@ fun AboutPageContent() {
                                 color = NovaColors.OnSurface
                             )
                             Text(
-                                "Version: 1.9",
+                                "Version: 1.9.1",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = NovaColors.OnSurfaceVariant
                             )

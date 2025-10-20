@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap
 object RealmsManager {
 
     private const val TAG = "RealmsManager"
-    private const val CLIENT_VERSION = "1.21.111"
+    private const val CLIENT_VERSION = "1.21.114"
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("RealmsManagerCoroutine"))
 
