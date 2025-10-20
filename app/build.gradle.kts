@@ -27,6 +27,9 @@ android {
             abiFilters += setOf("arm64-v8a", "armeabi-v7a")
         }
     }
+    buildFeatures {
+        buildConfig = true
+    }
     signingConfigs {
         create("shared") {
             enableV1Signing = true

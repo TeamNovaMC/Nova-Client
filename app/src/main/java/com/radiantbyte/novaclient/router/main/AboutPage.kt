@@ -23,6 +23,7 @@ import com.radiantbyte.novaclient.util.LocalSnackbarHostState
 import com.radiantbyte.novaclient.util.SnackbarHostStateScope
 import androidx.core.net.toUri
 import com.radiantbyte.novaclient.ui.component.authId
+import com.radiantbyte.novaclient.BuildConfig
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -94,7 +95,7 @@ fun AboutPageContent() {
                                 color = NovaColors.OnSurface
                             )
                             Text(
-                                "Version: 1.9.1",
+                                "Version: ${BuildConfig.VERSION_NAME}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = NovaColors.OnSurfaceVariant
                             )
