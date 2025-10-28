@@ -42,7 +42,6 @@
     <string name="combat">Combat</string>
     <string name="motion">Motion</string>
     <string name="visual">Visual</string>
-    <string name="particle">Particle</string>
     <string name="misc">Misc</string>
     <string name="config">Config</string>
     <string name="overlay_opacity">Overlay Button Opacity</string>
@@ -59,15 +58,11 @@
     <string name="check_updates_and_news">View Updates &amp; News</string>
     <string name="crash_happened">A crash occurred.</string>
     <string name="cannot_back">The app encountered a problem and must be restarted.</string>
-    <string name="effect">Effect</string>
     <string name="login_in">Log in using %s</string>
     <string name="fetch_account_successfully">Successfully fetched account.</string>
     <string name="xbox_device_code">Xbox device code</string>
     <string name="refresh">Refresh</string>
     <string name="world">World</string>
-    <string name="chest_stealer">Chest Stealer</string>
-    <string name="auto_close">Auto Close</string>
-    <string name="use_delay">Use Delay</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
 </resources>
