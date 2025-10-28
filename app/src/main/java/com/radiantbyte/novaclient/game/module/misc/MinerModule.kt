@@ -1,4 +1,4 @@
-package com.radiantbyte.novaclient.game.module.effect
+package com.radiantbyte.novaclient.game.module.misc
 
 import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
@@ -7,7 +7,7 @@ import com.radiantbyte.novaclient.game.data.Effect
 import org.cloudburstmc.protocol.bedrock.packet.MobEffectPacket
 import org.cloudburstmc.protocol.bedrock.packet.PlayerAuthInputPacket
 
-class DarknessModule : Module("darkness", ModuleCategory.Effect) {
+class MinerModule : Module("miner", ModuleCategory.Misc) {
 
     private val amplifierValue by floatValue("amplifier", 1f, 1f..5f)
 
@@ -17,7 +17,7 @@ class DarknessModule : Module("darkness", ModuleCategory.Effect) {
             session.clientBound(MobEffectPacket().apply {
                 runtimeEntityId = session.localPlayer.runtimeEntityId
                 event = MobEffectPacket.Event.REMOVE
-                effectId = Effect.DARKNESS
+                effectId = Effect.HASTE
             })
         }
     }
@@ -33,7 +33,7 @@ class DarknessModule : Module("darkness", ModuleCategory.Effect) {
                 session.clientBound(MobEffectPacket().apply {
                     runtimeEntityId = session.localPlayer.runtimeEntityId
                     event = MobEffectPacket.Event.ADD
-                    effectId = Effect.DARKNESS
+                    effectId = Effect.HASTE
                     amplifier = amplifierValue.toInt() - 1
                     isParticles = false
                     duration = 360000
@@ -41,6 +41,4 @@ class DarknessModule : Module("darkness", ModuleCategory.Effect) {
             }
         }
     }
-
-
 }

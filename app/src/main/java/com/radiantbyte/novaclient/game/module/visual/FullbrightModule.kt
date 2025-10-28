@@ -1,4 +1,4 @@
-package com.radiantbyte.novaclient.game.module.effect
+package com.radiantbyte.novaclient.game.module.visual
 
 import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
@@ -7,9 +7,9 @@ import com.radiantbyte.novaclient.game.data.Effect
 import org.cloudburstmc.protocol.bedrock.packet.MobEffectPacket
 import org.cloudburstmc.protocol.bedrock.packet.PlayerAuthInputPacket
 
-class HealthBoostModule : Module("health_boost", ModuleCategory.Effect) {
+class FullbrightModule : Module("fullbright", ModuleCategory.Visual) {
 
-    private val amplifierValue by floatValue("amplifier", 1f, 1f..5f)
+    private val amplifierValue by intValue("amplifier", 1, 1..5)
 
     override fun onDisabled() {
         super.onDisabled()
@@ -17,7 +17,7 @@ class HealthBoostModule : Module("health_boost", ModuleCategory.Effect) {
             session.clientBound(MobEffectPacket().apply {
                 runtimeEntityId = session.localPlayer.runtimeEntityId
                 event = MobEffectPacket.Event.REMOVE
-                effectId = Effect.HEALTH_BOOST
+                effectId = Effect.NIGHT_VISION
             })
         }
     }
@@ -33,14 +33,12 @@ class HealthBoostModule : Module("health_boost", ModuleCategory.Effect) {
                 session.clientBound(MobEffectPacket().apply {
                     runtimeEntityId = session.localPlayer.runtimeEntityId
                     event = MobEffectPacket.Event.ADD
-                    effectId = Effect.HEALTH_BOOST
-                    amplifier = amplifierValue.toInt() - 1
+                    effectId = Effect.NIGHT_VISION
+                    amplifier = amplifierValue
                     isParticles = false
                     duration = 360000
                 })
             }
         }
     }
-
-
 }

@@ -1,4 +1,4 @@
-package com.radiantbyte.novaclient.game.module.visual
+package com.radiantbyte.novaclient.game.module.world
 
 import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
@@ -8,7 +8,7 @@ import org.cloudburstmc.protocol.bedrock.data.LevelEvent
 import org.cloudburstmc.protocol.bedrock.packet.LevelEventPacket
 import org.cloudburstmc.protocol.bedrock.packet.PlayerAuthInputPacket
 
-class WeatherControllerModule : Module("weather_controller", ModuleCategory.Visual) {
+class WeatherControllerModule : Module("weather_controller", ModuleCategory.World) {
 
     private var clear by boolValue("clear", true)
     private var rain by boolValue("rain", false)

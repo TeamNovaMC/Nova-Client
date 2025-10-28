@@ -25,15 +25,11 @@ enum class ModuleCategory(
         labelResId = R.string.visual,
         displayName = "Visual"
     ),
-    Effect(
-        iconResId = R.drawable.masked_transitions_24px,
-        labelResId = R.string.effect,
-        displayName = "Effect"
-    ),
-    Particle(
-        iconResId = R.drawable.particles_24px,
-        labelResId = R.string.particle,
-        displayName = "Particle"
+
+    World(
+        iconResId = R.drawable.public_24px,
+        labelResId = R.string.world,
+        displayName = "World"
     ),
     Misc(
         iconResId = R.drawable.toc_24px,

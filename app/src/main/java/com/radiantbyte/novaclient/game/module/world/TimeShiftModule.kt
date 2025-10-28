@@ -1,4 +1,4 @@
-package com.radiantbyte.novaclient.game.module.visual
+package com.radiantbyte.novaclient.game.module.world
 
 import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
@@ -6,7 +6,7 @@ import com.radiantbyte.novaclient.game.ModuleCategory
 import org.cloudburstmc.protocol.bedrock.packet.PlayerAuthInputPacket
 import org.cloudburstmc.protocol.bedrock.packet.SetTimePacket
 
-class TimeShiftModule : Module("time_shift", ModuleCategory.Visual) {
+class TimeShiftModule : Module("time_shift", ModuleCategory.World) {
 
     private val time by intValue("time", 6000, 0..24000)
     private var lastTimeUpdate = 0L

@@ -145,11 +145,7 @@ fun SettingsPageContent() {
         var visibleCategories by remember {
             mutableStateOf(
                 ModuleCategory.entries.associateWith { category ->
-                    val defaultVisible = when (category) {
-                        ModuleCategory.Effect, ModuleCategory.Particle -> false
-                        else -> true
-                    }
-                    sharedPreferences.getBoolean("clickgui_category_${category.name}", defaultVisible)
+                    sharedPreferences.getBoolean("clickgui_category_${category.name}", true)
                 }
             )
         }

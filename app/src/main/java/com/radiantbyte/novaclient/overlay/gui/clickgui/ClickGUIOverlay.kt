@@ -77,11 +77,7 @@ private fun ClickGUIContent() {
 
     val visibleCategories = remember {
         ModuleCategory.entries.filter { category ->
-            val defaultVisible = when (category) {
-                ModuleCategory.Effect, ModuleCategory.Particle -> false
-                else -> true
-            }
-            sharedPreferences.getBoolean("clickgui_category_${category.name}", defaultVisible)
+            sharedPreferences.getBoolean("clickgui_category_${category.name}", true)
         }
     }
 
