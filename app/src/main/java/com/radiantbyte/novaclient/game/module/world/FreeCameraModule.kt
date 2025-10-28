@@ -1,4 +1,4 @@
-package com.radiantbyte.novaclient.game.module.visual
+package com.radiantbyte.novaclient.game.module.world
 
 import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
@@ -7,19 +7,19 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.kyori.adventure.text.Component
 import org.cloudburstmc.math.vector.Vector3f
 import org.cloudburstmc.protocol.bedrock.data.Ability
 import org.cloudburstmc.protocol.bedrock.data.AbilityLayer
+import org.cloudburstmc.protocol.bedrock.data.PlayerAuthInputData
 import org.cloudburstmc.protocol.bedrock.data.PlayerPermission
 import org.cloudburstmc.protocol.bedrock.data.command.CommandPermission
 import org.cloudburstmc.protocol.bedrock.packet.PlayerAuthInputPacket
-import org.cloudburstmc.protocol.bedrock.packet.TextPacket
-import org.cloudburstmc.protocol.bedrock.data.PlayerAuthInputData
 import org.cloudburstmc.protocol.bedrock.packet.SetEntityMotionPacket
+import org.cloudburstmc.protocol.bedrock.packet.TextPacket
 import org.cloudburstmc.protocol.bedrock.packet.UpdateAbilitiesPacket
+import kotlin.collections.addAll
 
-class FreeCameraModule : Module("free_camera", ModuleCategory.Visual) {
+class FreeCameraModule : Module("free_camera", ModuleCategory.World) {
 
     private var originalPosition: Vector3f? = null
     private val flySpeed by floatValue("speed", 0.15f, 0.1f..1.5f) // Add configurable speed

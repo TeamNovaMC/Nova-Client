@@ -7,7 +7,7 @@ import org.cloudburstmc.protocol.bedrock.data.entity.EntityEventType
 import org.cloudburstmc.protocol.bedrock.packet.EntityEventPacket
 import org.cloudburstmc.protocol.bedrock.packet.PlayerAuthInputPacket
 
-class FakeXPModule : Module("xp_levels", ModuleCategory.Misc) {
+class FakeXPModule : Module("fake_xp", ModuleCategory.Misc) {
 
     private val intervalValue by intValue("interval", 1000, 100..5000)
     private val levelsValue by intValue("levels", 1, 1..100)

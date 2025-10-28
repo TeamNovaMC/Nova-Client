@@ -46,7 +46,6 @@ import com.radiantbyte.novaclient.game.module.motion.SprintModule
 import com.radiantbyte.novaclient.game.module.motion.UnifiedFlyModule
 import com.radiantbyte.novaclient.game.module.visual.CrosshairModule
 import com.radiantbyte.novaclient.game.module.visual.ESPModule
-import com.radiantbyte.novaclient.game.module.visual.FreeCameraModule
 import com.radiantbyte.novaclient.game.module.visual.FullbrightModule
 import com.radiantbyte.novaclient.game.module.visual.MinimapModule
 import com.radiantbyte.novaclient.game.module.visual.NetworkInfoModule
@@ -56,6 +55,7 @@ import com.radiantbyte.novaclient.game.module.visual.SpeedDisplayModule
 import com.radiantbyte.novaclient.game.module.visual.WorldStateModule
 import com.radiantbyte.novaclient.game.module.visual.ZoomModule
 import com.radiantbyte.novaclient.game.module.visual.TargetHudModule
+import com.radiantbyte.novaclient.game.module.world.FreeCameraModule
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -103,7 +103,6 @@ object ModuleManager {
             add(ESPModule())
             add(ZoomModule())
             add(NoHurtCameraModule())
-            add(FreeCameraModule())
             add(SpeedDisplayModule())
             add(PositionDisplayModule())
             add(NetworkInfoModule())
@@ -114,6 +113,7 @@ object ModuleManager {
             add(FullbrightModule())
             
             // World
+            add(FreeCameraModule())
             add(TimeShiftModule())
             add(WeatherControllerModule())
             add(EffectsModule())
