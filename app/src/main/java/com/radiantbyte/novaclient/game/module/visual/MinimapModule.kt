@@ -8,10 +8,10 @@ import com.radiantbyte.novaclient.game.entity.EntityUnknown
 import com.radiantbyte.novaclient.game.entity.LocalPlayer
 import com.radiantbyte.novaclient.game.entity.MobList
 import com.radiantbyte.novaclient.game.entity.Player
-import com.radiantbyte.novaclient.overlay.EntityType
-import com.radiantbyte.novaclient.overlay.MinimapEntity
-import com.radiantbyte.novaclient.overlay.MinimapOverlay
-import com.radiantbyte.novaclient.overlay.MinimapPosition
+import com.radiantbyte.novaclient.overlay.hud.EntityType
+import com.radiantbyte.novaclient.overlay.hud.MinimapEntity
+import com.radiantbyte.novaclient.overlay.hud.MinimapOverlay
+import com.radiantbyte.novaclient.overlay.hud.MinimapPosition
 import org.cloudburstmc.protocol.bedrock.packet.MoveEntityAbsolutePacket
 import org.cloudburstmc.protocol.bedrock.packet.PlayerAuthInputPacket
 import kotlin.math.PI

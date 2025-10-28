@@ -1,6 +1,8 @@
-package com.radiantbyte.novaclient.overlay
+package com.radiantbyte.novaclient.overlay.gui.nova
 
 import android.annotation.SuppressLint
+import com.radiantbyte.novaclient.overlay.OverlayWindow
+import com.radiantbyte.novaclient.overlay.OverlayLifecycleOwner
 import android.content.Context
 import android.view.WindowManager
 import androidx.compose.ui.platform.compositionContext

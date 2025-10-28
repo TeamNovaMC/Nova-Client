@@ -8,7 +8,7 @@ import com.radiantbyte.novaclient.game.entity.EntityUnknown
 import com.radiantbyte.novaclient.game.entity.LocalPlayer
 import com.radiantbyte.novaclient.game.entity.MobList
 import com.radiantbyte.novaclient.game.entity.Player
-import com.radiantbyte.novaclient.overlay.TargetHudOverlay
+import com.radiantbyte.novaclient.overlay.hud.TargetHudOverlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

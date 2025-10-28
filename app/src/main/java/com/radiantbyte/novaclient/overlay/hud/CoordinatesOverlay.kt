@@ -1,6 +1,8 @@
-package com.radiantbyte.novaclient.overlay
+package com.radiantbyte.novaclient.overlay.hud
 
 import android.annotation.SuppressLint
+import com.radiantbyte.novaclient.overlay.OverlayWindow
+import com.radiantbyte.novaclient.overlay.OverlayManager
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.foundation.background

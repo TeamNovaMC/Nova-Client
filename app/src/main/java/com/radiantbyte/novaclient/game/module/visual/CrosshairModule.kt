@@ -3,7 +3,7 @@ package com.radiantbyte.novaclient.game.module.visual
 import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
 import com.radiantbyte.novaclient.game.ModuleCategory
-import com.radiantbyte.novaclient.overlay.CrosshairOverlay
+import com.radiantbyte.novaclient.overlay.hud.CrosshairOverlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

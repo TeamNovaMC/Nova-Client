@@ -1,4 +1,4 @@
-package com.radiantbyte.novaclient.overlay.clickgui
+package com.radiantbyte.novaclient.overlay.gui.clickgui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background

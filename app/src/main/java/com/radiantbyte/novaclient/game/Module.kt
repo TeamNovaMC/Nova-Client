@@ -3,7 +3,7 @@ package com.radiantbyte.novaclient.game
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.radiantbyte.novaclient.overlay.OverlayShortcutButton
+import com.radiantbyte.novaclient.overlay.gui.classic.OverlayShortcutButton
 import com.radiantbyte.novaclient.util.translatedSelf
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject

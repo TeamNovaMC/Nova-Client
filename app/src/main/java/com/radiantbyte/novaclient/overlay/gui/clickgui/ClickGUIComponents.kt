@@ -1,4 +1,4 @@
-package com.radiantbyte.novaclient.overlay.clickgui
+package com.radiantbyte.novaclient.overlay.gui.clickgui
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.animateColorAsState

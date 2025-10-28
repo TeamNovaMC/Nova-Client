@@ -1,6 +1,7 @@
-package com.radiantbyte.novaclient.overlay
+package com.radiantbyte.novaclient.overlay.gui.nova
 
 import android.content.Context
+import com.radiantbyte.novaclient.overlay.OverlayWindow
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.view.WindowManager

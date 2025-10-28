@@ -1,6 +1,7 @@
-package com.radiantbyte.novaclient.overlay
+package com.radiantbyte.novaclient.overlay.gui.nova
 
 import android.os.Build
+import com.radiantbyte.novaclient.overlay.OverlayWindow
 import android.view.WindowManager
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*

@@ -1,6 +1,8 @@
-package com.radiantbyte.novaclient.overlay
+package com.radiantbyte.novaclient.overlay.gui.clickgui
 
 import android.content.Context
+import com.radiantbyte.novaclient.overlay.OverlayWindow
+import com.radiantbyte.novaclient.overlay.OverlayManager
 import android.os.Build
 import android.view.WindowManager
 import androidx.compose.foundation.background
@@ -27,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.radiantbyte.novaclient.game.ModuleCategory
 import com.radiantbyte.novaclient.game.ModuleManager
-import com.radiantbyte.novaclient.overlay.clickgui.CategoryPanel
+import com.radiantbyte.novaclient.overlay.gui.clickgui.CategoryPanel
 import com.radiantbyte.novaclient.ui.theme.ClickGUIColors
 import com.radiantbyte.novaclient.ui.theme.NovaClientTheme
 import kotlinx.coroutines.CoroutineScope

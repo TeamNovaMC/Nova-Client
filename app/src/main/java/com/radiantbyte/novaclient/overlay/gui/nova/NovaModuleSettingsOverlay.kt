@@ -1,6 +1,7 @@
-package com.radiantbyte.novaclient.overlay
+package com.radiantbyte.novaclient.overlay.gui.nova
 
 import android.view.WindowManager
+import com.radiantbyte.novaclient.overlay.OverlayWindow
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn

@@ -1,6 +1,8 @@
-package com.radiantbyte.novaclient.overlay
+package com.radiantbyte.novaclient.overlay.gui.classic
 
 import android.os.Build
+import com.radiantbyte.novaclient.overlay.OverlayWindow
+import com.radiantbyte.novaclient.overlay.OverlayManager
 import android.view.WindowManager
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background

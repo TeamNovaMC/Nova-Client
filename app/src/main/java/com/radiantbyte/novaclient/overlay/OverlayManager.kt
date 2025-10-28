@@ -14,6 +14,12 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.radiantbyte.novaclient.game.ModuleManager
 import com.radiantbyte.novaclient.ui.theme.NovaClientTheme
+import com.radiantbyte.novaclient.overlay.gui.classic.OverlayButton
+import com.radiantbyte.novaclient.overlay.gui.classic.OverlayShortcutButton
+import com.radiantbyte.novaclient.overlay.gui.clickgui.ClickGUIButton
+import com.radiantbyte.novaclient.overlay.gui.clickgui.ClickGUIOverlay
+import com.radiantbyte.novaclient.overlay.gui.nova.NovaOverlayButton
+import com.radiantbyte.novaclient.overlay.gui.nova.NovaOverlayManager
 import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")

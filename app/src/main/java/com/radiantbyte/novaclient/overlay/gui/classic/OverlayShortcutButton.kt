@@ -1,6 +1,7 @@
-package com.radiantbyte.novaclient.overlay
+package com.radiantbyte.novaclient.overlay.gui.classic
 
 import android.content.res.Configuration
+import com.radiantbyte.novaclient.overlay.OverlayWindow
 import android.view.WindowManager
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.gestures.detectDragGestures

@@ -3,7 +3,7 @@ package com.radiantbyte.novaclient.game.module.misc
 import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
 import com.radiantbyte.novaclient.game.ModuleCategory
-import com.radiantbyte.novaclient.overlay.PieChartOverlay
+import com.radiantbyte.novaclient.overlay.hud.PieChartOverlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

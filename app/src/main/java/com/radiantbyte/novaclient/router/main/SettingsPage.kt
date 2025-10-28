@@ -86,7 +86,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.shape.CircleShape
 import com.radiantbyte.novaclient.overlay.GUITheme
-import com.radiantbyte.novaclient.overlay.NovaOverlayManager
+import com.radiantbyte.novaclient.overlay.gui.nova.NovaOverlayManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

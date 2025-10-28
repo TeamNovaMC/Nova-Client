@@ -4,7 +4,7 @@ import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
 import com.radiantbyte.novaclient.game.ModuleCategory
 import com.radiantbyte.novaclient.game.ModuleManager
-import com.radiantbyte.novaclient.overlay.ArrayListOverlay
+import com.radiantbyte.novaclient.overlay.hud.ArrayListOverlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

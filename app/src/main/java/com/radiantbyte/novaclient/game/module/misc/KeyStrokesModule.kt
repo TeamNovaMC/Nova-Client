@@ -3,7 +3,7 @@ package com.radiantbyte.novaclient.game.module.misc
 import com.radiantbyte.novaclient.game.InterceptablePacket
 import com.radiantbyte.novaclient.game.Module
 import com.radiantbyte.novaclient.game.ModuleCategory
-import com.radiantbyte.novaclient.overlay.KeyStrokesOverlay
+import com.radiantbyte.novaclient.overlay.hud.KeyStrokesOverlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
