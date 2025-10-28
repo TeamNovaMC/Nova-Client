@@ -12,6 +12,7 @@ import com.radiantbyte.novaclient.game.module.combat.HitboxModule
 import com.radiantbyte.novaclient.game.module.combat.KillauraModule
 import com.radiantbyte.novaclient.game.module.combat.TriggerBotModule
 import com.radiantbyte.novaclient.game.module.misc.ArrayListModule
+import com.radiantbyte.novaclient.game.module.misc.AutoDisconnectModule
 import com.radiantbyte.novaclient.game.module.misc.BaritoneModule
 import com.radiantbyte.novaclient.game.module.misc.CommandHandlerModule
 import com.radiantbyte.novaclient.game.module.misc.CoordinatesModule
@@ -122,6 +123,7 @@ object ModuleManager {
             add(ChestStealerModule())
             
             // Misc
+            add(AutoDisconnectModule())
             add(DesyncModule())
             add(PositionLoggerModule())
             add(NoChatModule())
