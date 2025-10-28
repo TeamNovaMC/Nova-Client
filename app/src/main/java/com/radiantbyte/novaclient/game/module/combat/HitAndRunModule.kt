@@ -12,7 +12,7 @@ import org.cloudburstmc.protocol.bedrock.packet.SetEntityMotionPacket
 import kotlin.math.cos
 import kotlin.math.sin
 
-class HitAndRunModule : Module("hitandrun", ModuleCategory.Combat) {
+class HitAndRunModule : Module("hit_and_run", ModuleCategory.Combat) {
 
     private var range by floatValue("range", 4.0f, 2f..6f)
     private var hitSpeed by intValue("hit_speed", 200, 100..1000)
