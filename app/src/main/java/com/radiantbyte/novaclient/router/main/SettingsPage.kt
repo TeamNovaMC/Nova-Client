@@ -111,10 +111,10 @@ fun SettingsPageContent() {
             mutableStateOf(
                 try {
                     GUITheme.valueOf(
-                        sharedPreferences.getString("gui_theme", "CLASSIC") ?: "CLASSIC"
+                        sharedPreferences.getString("gui_theme", "NOVA") ?: "NOVA"
                     )
                 } catch (e: Exception) {
-                    GUITheme.CLASSIC
+                    GUITheme.NOVA
                 }
             )
         }

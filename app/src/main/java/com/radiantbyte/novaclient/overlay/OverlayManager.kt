@@ -46,10 +46,10 @@ object OverlayManager {
         val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         return try {
             GUITheme.valueOf(
-                sharedPreferences.getString("gui_theme", "CLASSIC") ?: "CLASSIC"
+                sharedPreferences.getString("gui_theme", "NOVA") ?: "NOVA"
             )
         } catch (e: Exception) {
-            GUITheme.CLASSIC
+            GUITheme.NOVA
         }
     }
 
