@@ -23,6 +23,7 @@ object NovaOverlayManager {
     private var overlayButton: NovaOverlayButton? = null
     private var clickGUI: NovaClickGUI? = null
     private var moduleSettingsOverlay: NovaModuleSettingsOverlay? = null
+    private val shortcutButtons = mutableMapOf<Module, NovaShortcutButton>()
     private var isInitialized = false
 
     fun initialize(context: Context) {
@@ -77,10 +78,44 @@ object NovaOverlayManager {
         hideModuleSettings()
     }
 
+    fun showShortcut(module: Module) {
+        if (!isInitialized) return
+        
+        hideShortcut(module)
+        val shortcutButton = module.novaShortcutButton
+        shortcutButtons[module] = shortcutButton
+        shortcutButton.show(context!!)
+    }
+
+    fun hideShortcut(module: Module) {
+        shortcutButtons.remove(module)?.hide()
+    }
+
+    fun updateShortcuts() {
+        if (!isInitialized) return
+        
+        com.radiantbyte.novaclient.game.ModuleManager.modules.forEach { module ->
+            if (module.isShortcutDisplayed) {
+                if (!shortcutButtons.containsKey(module)) {
+                    showShortcut(module)
+                }
+            } else {
+                hideShortcut(module)
+            }
+        }
+    }
+
+    fun hideAllShortcuts() {
+        shortcutButtons.keys.toList().forEach { module ->
+            hideShortcut(module)
+        }
+    }
+
     fun hideAll() {
         hideOverlayButton()
         hideClickGUI()
         hideModuleSettings()
+        hideAllShortcuts()
     }
 
     fun dismissOverlayWindow(window: OverlayWindow) {
@@ -88,6 +123,11 @@ object NovaOverlayManager {
             is NovaClickGUI -> hideClickGUI()
             is NovaModuleSettingsOverlay -> hideModuleSettings()
             is NovaOverlayButton -> hideOverlayButton()
+            is NovaShortcutButton -> {
+                shortcutButtons.entries.find { it.value == window }?.let { entry ->
+                    hideShortcut(entry.key)
+                }
+            }
         }
     }
 

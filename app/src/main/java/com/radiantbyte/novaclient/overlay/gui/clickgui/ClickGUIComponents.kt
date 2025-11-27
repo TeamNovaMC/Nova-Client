@@ -97,6 +97,15 @@ fun ModuleSettingsSection(module: Module) {
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
+        ShortcutToggleSetting(module = module)
+        
+        if (module.values.isNotEmpty()) {
+            HorizontalDivider(
+                color = ClickGUIColors.SecondaryText.copy(alpha = 0.2f),
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+        }
+        
         module.values.forEach { value ->
             when (value) {
                 is BoolValue -> {
@@ -119,6 +128,41 @@ fun ModuleSettingsSection(module: Module) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ShortcutToggleSetting(module: Module) {
+    var isShortcutEnabled by remember { mutableStateOf(module.isShortcutDisplayed) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Shortcut",
+            color = ClickGUIColors.PrimaryText,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
+        )
+
+        Switch(
+            checked = isShortcutEnabled,
+            onCheckedChange = { enabled ->
+                isShortcutEnabled = enabled
+                module.isShortcutDisplayed = enabled
+                com.radiantbyte.novaclient.overlay.OverlayManager.updateClickGUIShortcuts()
+            },
+            modifier = Modifier.size(width = 32.dp, height = 20.dp),
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = ClickGUIColors.AccentColor,
+                checkedTrackColor = ClickGUIColors.AccentColor.copy(alpha = 0.5f),
+                uncheckedThumbColor = ClickGUIColors.SecondaryText,
+                uncheckedTrackColor = ClickGUIColors.SecondaryText.copy(alpha = 0.3f)
+            )
+        )
     }
 }
 

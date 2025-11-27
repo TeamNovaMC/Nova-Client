@@ -102,12 +102,14 @@ class UnifiedFlyModule : Module("UnifiedFly", ModuleCategory.Motion) {
 
     override fun onEnabled() {
         super.onEnabled()
-        launchY = session.localPlayer.posY
-        yPortFlag = true
-        lastMotionTime = 0L
-        lastYPortTime = 0L
-        jitterState = false
-        canFly = false
+        if (isSessionCreated) {
+            launchY = session.localPlayer.posY
+            yPortFlag = true
+            lastMotionTime = 0L
+            lastYPortTime = 0L
+            jitterState = false
+            canFly = false
+        }
     }
 
     override fun onDisabled() {

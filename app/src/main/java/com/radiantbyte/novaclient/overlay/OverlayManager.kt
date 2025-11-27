@@ -12,14 +12,17 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.radiantbyte.novaclient.game.Module
 import com.radiantbyte.novaclient.game.ModuleManager
 import com.radiantbyte.novaclient.ui.theme.NovaClientTheme
 import com.radiantbyte.novaclient.overlay.gui.classic.OverlayButton
 import com.radiantbyte.novaclient.overlay.gui.classic.OverlayShortcutButton
 import com.radiantbyte.novaclient.overlay.gui.clickgui.ClickGUIButton
 import com.radiantbyte.novaclient.overlay.gui.clickgui.ClickGUIOverlay
+import com.radiantbyte.novaclient.overlay.gui.clickgui.ClickGUIShortcutButton
 import com.radiantbyte.novaclient.overlay.gui.nova.NovaOverlayButton
 import com.radiantbyte.novaclient.overlay.gui.nova.NovaOverlayManager
+import com.radiantbyte.novaclient.overlay.gui.nova.NovaShortcutButton
 import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")
@@ -37,6 +40,7 @@ object OverlayManager {
     private var currentOverlayButton: OverlayWindow? = null
     private var currentClickGUI: OverlayWindow? = null
     private var currentClickGUIOverlay: OverlayWindow? = null
+    private val clickGUIShortcutButtons = mutableMapOf<Module, ClickGUIShortcutButton>()
 
     private fun getGUITheme(context: Context): GUITheme {
         val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -57,6 +61,7 @@ object OverlayManager {
         currentOverlayButton = null
         currentClickGUI = null
         currentClickGUIOverlay = null
+        clickGUIShortcutButtons.clear()
 
         // Initialize based on theme
         when (theme) {
@@ -64,10 +69,19 @@ object OverlayManager {
                 // Initialize Nova overlay system
                 NovaOverlayManager.initialize(context)
                 currentOverlayButton = NovaOverlayButton()
-                // Note: NovaClickGUI is created on-demand
             }
             GUITheme.CLICKGUI -> {
                 currentOverlayButton = ClickGUIButton()
+                overlayWindows.addAll(
+                    ModuleManager
+                        .modules
+                        .filter { it.isShortcutDisplayed }
+                        .map { module ->
+                            val button = module.clickGUIShortcutButton
+                            clickGUIShortcutButtons[module] = button
+                            button
+                        }
+                )
             }
             GUITheme.CLASSIC -> {
                 currentOverlayButton = OverlayButton()
@@ -111,8 +125,8 @@ object OverlayManager {
         val theme = getGUITheme(context)
         when (theme) {
             GUITheme.NOVA -> {
-                // Show Nova overlay button
                 NovaOverlayManager.showOverlayButton()
+                NovaOverlayManager.updateShortcuts()
             }
             GUITheme.CLICKGUI -> {
                 overlayWindows.forEach {
@@ -120,7 +134,6 @@ object OverlayManager {
                 }
             }
             GUITheme.CLASSIC -> {
-                // Show Classic overlays
                 overlayWindows.forEach {
                     showOverlayWindow(context, it)
                 }
@@ -279,6 +292,7 @@ object OverlayManager {
         currentOverlayButton = null
         currentClickGUI = null
         currentClickGUIOverlay = null
+        clickGUIShortcutButtons.clear()
     }
 
     fun showClickGUI() {
@@ -294,6 +308,30 @@ object OverlayManager {
         currentClickGUIOverlay?.let {
             dismissOverlayWindow(context, it)
             currentClickGUIOverlay = null
+        }
+    }
+
+    fun updateClickGUIShortcuts() {
+        val context = currentContext ?: return
+        if (!isShowing) return
+
+        val theme = getGUITheme(context)
+        if (theme != GUITheme.CLICKGUI) return
+
+        ModuleManager.modules.forEach { module ->
+            if (module.isShortcutDisplayed) {
+                if (!clickGUIShortcutButtons.containsKey(module)) {
+                    val button = module.clickGUIShortcutButton
+                    clickGUIShortcutButtons[module] = button
+                    overlayWindows.add(button)
+                    showOverlayWindow(context, button)
+                }
+            } else {
+                clickGUIShortcutButtons.remove(module)?.let { button ->
+                    overlayWindows.remove(button)
+                    dismissOverlayWindow(context, button)
+                }
+            }
         }
     }
 

@@ -27,10 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.radiantbyte.novaclient.game.*
 import com.radiantbyte.novaclient.ui.theme.NovaColors
 import com.radiantbyte.novaclient.util.translatedSelf
@@ -155,7 +157,6 @@ private fun NovaSettingsPanel(
                     )
             )
 
-            // Configuration section
             if (module.values.isEmpty()) {
                 NovaEmptyState()
             } else {
@@ -180,6 +181,8 @@ private fun NovaSettingsHeader(
     module: Module,
     onDismiss: () -> Unit
 ) {
+    var isShortcutEnabled by remember { mutableStateOf(module.isShortcutDisplayed) }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -199,16 +202,62 @@ private fun NovaSettingsHeader(
             )
         }
 
-        IconButton(
-            onClick = onDismiss,
-            modifier = Modifier.size(36.dp)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Default.Close,
-                contentDescription = "Close",
-                tint = NovaColors.OnSurface,
-                modifier = Modifier.size(20.dp)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Shortcut",
+                    style = TextStyle(
+                        brush = if (isShortcutEnabled) {
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    NovaColors.Secondary,
+                                    NovaColors.Primary
+                                )
+                            )
+                        } else {
+                            null
+                        },
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 0.5.sp
+                    ),
+                    color = if (!isShortcutEnabled) NovaColors.OnSurfaceVariant else Color.Unspecified
+                )
+
+                Switch(
+                    checked = isShortcutEnabled,
+                    onCheckedChange = { enabled ->
+                        isShortcutEnabled = enabled
+                        module.isShortcutDisplayed = enabled
+                        NovaOverlayManager.updateShortcuts()
+                    },
+                    modifier = Modifier.size(width = 36.dp, height = 20.dp),
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = NovaColors.Secondary,
+                        checkedTrackColor = NovaColors.Secondary.copy(alpha = 0.5f),
+                        uncheckedThumbColor = NovaColors.OnSurfaceVariant,
+                        uncheckedTrackColor = NovaColors.OnSurfaceVariant.copy(alpha = 0.3f)
+                    )
+                )
+            }
+
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = NovaColors.OnSurface,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }

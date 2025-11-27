@@ -3,7 +3,10 @@ package com.radiantbyte.novaclient.game
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.radiantbyte.novaclient.overlay.OverlayWindow
 import com.radiantbyte.novaclient.overlay.gui.classic.OverlayShortcutButton
+import com.radiantbyte.novaclient.overlay.gui.clickgui.ClickGUIShortcutButton
+import com.radiantbyte.novaclient.overlay.gui.nova.NovaShortcutButton
 import com.radiantbyte.novaclient.util.translatedSelf
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -48,6 +51,10 @@ abstract class Module(
     var shortcutY = 100
 
     val overlayShortcutButton by lazy { OverlayShortcutButton(this) }
+    
+    val novaShortcutButton by lazy { NovaShortcutButton(this) }
+    
+    val clickGUIShortcutButton by lazy { ClickGUIShortcutButton(this) }
 
     override val values: MutableList<Value<*>> = ArrayList()
 
