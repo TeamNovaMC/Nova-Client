@@ -286,7 +286,7 @@ fun HomePageContent() {
                             overlayPermissionLauncher.launch(
                                 Intent(
                                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                    "package: ${context.packageName}".toUri()
+                                    "package:${context.packageName}".toUri()
                                 )
                             )
                             return@NovaFloatingActionButton
