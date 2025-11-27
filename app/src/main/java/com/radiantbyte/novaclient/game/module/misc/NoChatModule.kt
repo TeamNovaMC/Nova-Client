@@ -7,7 +7,7 @@ import org.cloudburstmc.protocol.bedrock.packet.TextPacket
 
 class NoChatModule : Module("no_chat", ModuleCategory.Misc) {
 
-    private val blockAllChat by boolValue("block_all", false)
+    private val blockAllChat by boolValue("block_all", true)
     private val blockPlayerChat by boolValue("block_player_chat", true)
     private val blockSystemChat by boolValue("block_system_chat", false)
     private val blockWhispers by boolValue("block_whispers", false)
