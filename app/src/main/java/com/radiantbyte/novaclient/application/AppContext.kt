@@ -18,45 +18,6 @@ class AppContext : Application(), Thread.UncaughtExceptionHandler {
     override fun onCreate() {
         super.onCreate()
         instance = this
-
-//        val ensureCompositionCreatedMethod = AbstractComposeView::class.java.getDeclaredMethod("ensureCompositionCreated")
-//        ensureCompositionCreatedMethod.isAccessible = true
-
-//        Pine.hook(
-//            AbstractComposeView::class.java.getDeclaredMethod("onMeasure", Int::class.java, Int::class.java),
-//            object : MethodHook() {
-//                override fun beforeCall(callFrame: Pine.CallFrame) {
-//                    if (callFrame.thisObject is PopupLayout) {
-//                        val popupLayout = callFrame.thisObject as PopupLayout
-//                        val args = callFrame.args
-//                        val widthMeasureSpec = args[0] as Int
-//                        val heightMeasureSpec = args[1] as Int
-//
-//                        ensureCompositionCreatedMethod.invoke(callFrame.thisObject)
-//                        popupLayout.overrideInternalOnMeasure(widthMeasureSpec, heightMeasureSpec)
-//                    }
-//                }
-//            }
-//        )
-//
-//        Pine.hook(
-//            AbstractComposeView::class.java.getDeclaredMethod("onLayout", Boolean::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java),
-//            object : MethodHook() {
-//                override fun beforeCall(callFrame: Pine.CallFrame) {
-//                    if (callFrame.thisObject is PopupLayout) {
-//                        val popupLayout = callFrame.thisObject as PopupLayout
-//                        val args = callFrame.args
-//                        val changed = args[0] as Boolean
-//                        val left = args[1] as Int
-//                        val top = args[2] as Int
-//                        val right = args[3] as Int
-//                        val bottom = args[4] as Int
-//                        popupLayout.overrideInternalOnLayout(changed, left, top, right, bottom)
-//                    }
-//                }
-//            }
-//        )
-
         Thread.setDefaultUncaughtExceptionHandler(this)
     }
 
@@ -84,19 +45,32 @@ class AppContext : Application(), Thread.UncaughtExceptionHandler {
             }
         }
 
+        val crashMessage = buildString {
+            appendLine("An unexpected exception / error happened!")
+            appendLine("Please tell the developer to fix it!")
+            appendLine()
+            appendLine(deviceInfo)
+            appendLine("Thread: ${t.name}")
+            appendLine("Thread Group: ${t.threadGroup?.name}")
+            appendLine()
+            appendLine("Stack Trace: $stackTrace")
+        }
+
+        try {
+            val crashLogsDir = getExternalFilesDir("crash_logs") ?: filesDir.resolve("crash_logs")
+            crashLogsDir.mkdirs()
+            
+            val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.getDefault())
+                .format(java.util.Date())
+            val crashFile = crashLogsDir.resolve("crash_$timestamp.txt")
+            
+            crashFile.writeText(crashMessage)
+        } catch (_: Exception) {
+        }
 
         startActivity(Intent(this, CrashHandlerActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            putExtra("message", buildString {
-                appendLine("An unexpected exception / error happened!")
-                appendLine("Please tell the developer to fix it!")
-                appendLine()
-                appendLine(deviceInfo)
-                appendLine("Thread: ${t.name}")
-                appendLine("Thread Group: ${t.threadGroup?.name}")
-                appendLine()
-                appendLine("Stack Trace: $stackTrace")
-            })
+            putExtra("message", crashMessage)
         })
         Process.killProcess(Process.myPid())
     }
