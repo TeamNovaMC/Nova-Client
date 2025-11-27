@@ -102,6 +102,7 @@ object ModuleManager {
             
             // Visual
             add(ESPModule())
+            add(FullbrightModule())
             add(ZoomModule())
             add(NoHurtCameraModule())
             add(SpeedDisplayModule())
@@ -111,7 +112,6 @@ object ModuleManager {
             add(MinimapModule())
             add(CrosshairModule())
             add(TargetHudModule())
-            add(FullbrightModule())
             
             // World
             add(FreeCameraModule())
