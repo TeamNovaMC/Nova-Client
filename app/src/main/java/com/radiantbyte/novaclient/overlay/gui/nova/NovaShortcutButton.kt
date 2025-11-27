@@ -42,6 +42,11 @@ class NovaShortcutButton(
             windowAnimations = android.R.style.Animation_Toast
             x = module.shortcutX
             y = module.shortcutY
+
+            val context = NovaOverlayManager.context
+            val shortcutOpacity = context?.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                ?.getFloat("shortcut_opacity", 1f) ?: 1f
+            alpha = shortcutOpacity
         }
     }
 

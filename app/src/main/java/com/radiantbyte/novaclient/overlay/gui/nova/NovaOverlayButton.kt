@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -43,9 +44,15 @@ class NovaOverlayButton : OverlayWindow() {
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
             format = android.graphics.PixelFormat.TRANSLUCENT
 
+            val context = NovaOverlayManager.context
+            val overlayOpacity = context?.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                ?.getFloat("overlay_opacity", 1f) ?: 1f
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                alpha = 1.0f
+                alpha = overlayOpacity
                 blurBehindRadius = 10
+            } else {
+                alpha = overlayOpacity
             }
         }
     }
@@ -54,6 +61,9 @@ class NovaOverlayButton : OverlayWindow() {
     override fun Content() {
         var isPressed by remember { mutableStateOf(false) }
         val context = LocalContext.current
+        val sharedPreferences = remember {
+            context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        }
 
         // Simple press animation only
         val pressScale by animateFloatAsState(
@@ -62,9 +72,12 @@ class NovaOverlayButton : OverlayWindow() {
             label = "press_scale"
         )
 
+        val borderColor = remember {
+            Color(sharedPreferences.getInt("overlay_border_color", Color.Cyan.toArgb()))
+        }
+
         // Load custom icon if available
-        val customIconPath = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-            .getString("overlay_icon_path", null)
+        val customIconPath = sharedPreferences.getString("overlay_icon_path", null)
 
         val customIcon = if (customIconPath != null) {
             try {
@@ -117,7 +130,7 @@ class NovaOverlayButton : OverlayWindow() {
                     )
                     .border(
                         width = 2.dp,
-                        color = Color.Cyan,
+                        color = borderColor,
                         shape = CircleShape
                     )
                     .clip(CircleShape),

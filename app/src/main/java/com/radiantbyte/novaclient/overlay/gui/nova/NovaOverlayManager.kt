@@ -157,6 +157,32 @@ object NovaOverlayManager {
         }
     }
 
+    fun updateOverlayOpacity(opacity: Float) {
+        overlayButton?.let { button ->
+            context?.let { ctx ->
+                try {
+                    button.layoutParams.alpha = opacity
+                    val windowManager = ctx.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                    windowManager.updateViewLayout(button.composeView, button.layoutParams)
+                } catch (e: Exception) {
+                }
+            }
+        }
+    }
+
+    fun updateShortcutOpacity(opacity: Float) {
+        shortcutButtons.values.forEach { button ->
+            context?.let { ctx ->
+                try {
+                    button.layoutParams.alpha = opacity
+                    val windowManager = ctx.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                    windowManager.updateViewLayout(button.composeView, button.layoutParams)
+                } catch (e: Exception) {
+                }
+            }
+        }
+    }
+
 }
 
 // Extension functions for OverlayWindow

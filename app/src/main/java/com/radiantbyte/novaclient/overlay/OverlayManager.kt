@@ -214,7 +214,7 @@ object OverlayManager {
     }
 
     fun updateOverlayOpacity(opacity: Float) {
-        overlayWindows.find { it is OverlayButton }?.let { button ->
+        overlayWindows.find { it is OverlayButton || it is ClickGUIButton }?.let { button ->
             button.layoutParams.alpha = opacity
             currentContext?.let { context ->
                 (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
@@ -224,7 +224,7 @@ object OverlayManager {
     }
 
     fun updateShortcutOpacity(opacity: Float) {
-        overlayWindows.filter { it is OverlayShortcutButton }.forEach { button ->
+        overlayWindows.filter { it is OverlayShortcutButton || it is ClickGUIShortcutButton }.forEach { button ->
             button.layoutParams.alpha = opacity
             currentContext?.let { context ->
                 (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)

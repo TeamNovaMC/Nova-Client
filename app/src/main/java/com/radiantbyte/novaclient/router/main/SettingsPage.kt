@@ -293,113 +293,116 @@ fun SettingsPageContent() {
                     }
                 }
 
-                OutlinedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                    onClick = { showClickGUIDimensionsDialog = true }
-                ) {
-                    Row(
-                        Modifier.padding(15.dp),
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                if (selectedGUITheme == GUITheme.CLICKGUI) {
+                    OutlinedCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        onClick = { showClickGUIDimensionsDialog = true }
                     ) {
-                        Icon(
-                            Icons.Rounded.ViewColumn,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                "ClickGUI Panel Dimensions",
-                                style = MaterialTheme.typography.bodyLarge
+                        Row(
+                            Modifier.padding(15.dp),
+                            horizontalArrangement = Arrangement.spacedBy(15.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Rounded.ViewColumn,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
                             )
-                            Text(
-                                "Adjust ClickGUI panel size (${clickGUIPanelWidth}x${clickGUIPanelHeight}dp)",
-                                style = MaterialTheme.typography.bodySmall
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    "ClickGUI Panel Dimensions",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    "Adjust ClickGUI panel size (${clickGUIPanelWidth}x${clickGUIPanelHeight}dp)",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            Icon(
+                                Icons.Rounded.Settings,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .scale(0.8f)
+                                    .size(20.dp)
                             )
                         }
-                        Icon(
-                            Icons.Rounded.Settings,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .scale(0.8f)
-                                .size(20.dp)
-                        )
+                    }
+
+                    OutlinedCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        onClick = { showClickGUICategoriesDialog = true }
+                    ) {
+                        Row(
+                            Modifier.padding(15.dp),
+                            horizontalArrangement = Arrangement.spacedBy(15.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Rounded.ViewColumn,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    "ClickGUI Visible Categories",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                val visibleCount = visibleCategories.values.count { it }
+                                Text(
+                                    "Select which categories to show ($visibleCount/${ModuleCategory.entries.size} visible)",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            Icon(
+                                Icons.Rounded.Settings,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .scale(0.8f)
+                                    .size(20.dp)
+                            )
+                        }
                     }
                 }
 
-                OutlinedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                    onClick = { showClickGUICategoriesDialog = true }
-                ) {
-                    Row(
-                        Modifier.padding(15.dp),
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                if (selectedGUITheme == GUITheme.CLASSIC) {
+                    OutlinedCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        onClick = { showColumnsDialog = true }
                     ) {
-                        Icon(
-                            Icons.Rounded.ViewColumn,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                "ClickGUI Visible Categories",
-                                style = MaterialTheme.typography.bodyLarge
+                        Row(
+                            Modifier.padding(15.dp),
+                            horizontalArrangement = Arrangement.spacedBy(15.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Rounded.ViewColumn,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
                             )
-                            val visibleCount = visibleCategories.values.count { it }
-                            Text(
-                                "Select which categories to show ($visibleCount/${ModuleCategory.entries.size} visible)",
-                                style = MaterialTheme.typography.bodySmall
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    "Module Layout",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    "Adjust number of module columns (${columnCount} columns)",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            Icon(
+                                Icons.Rounded.Settings,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .scale(0.8f)
+                                    .size(20.dp)
                             )
                         }
-                        Icon(
-                            Icons.Rounded.Settings,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .scale(0.8f)
-                                .size(20.dp)
-                        )
-                    }
-                }
-
-                // Module Columns Settings Card
-                OutlinedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                    onClick = { showColumnsDialog = true }
-                ) {
-                    Row(
-                        Modifier.padding(15.dp),
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Rounded.ViewColumn,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                "Module Layout",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Text(
-                                "Adjust number of module columns (${columnCount} columns)",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                        Icon(
-                            Icons.Rounded.Settings,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .scale(0.8f)
-                                .size(20.dp)
-                        )
                     }
                 }
 
@@ -649,6 +652,7 @@ fun SettingsPageContent() {
                                         OverlayManager.currentContext?.let {
                                             OverlayManager.updateOverlayOpacity(value)
                                         }
+                                        NovaOverlayManager.updateOverlayOpacity(value)
                                     },
                                     valueRange = 0.0f..1f
                                 )
@@ -669,6 +673,7 @@ fun SettingsPageContent() {
                                         OverlayManager.currentContext?.let {
                                             OverlayManager.updateShortcutOpacity(value)
                                         }
+                                        NovaOverlayManager.updateShortcutOpacity(value)
                                     },
                                     valueRange = 0.0f..1f
                                 )

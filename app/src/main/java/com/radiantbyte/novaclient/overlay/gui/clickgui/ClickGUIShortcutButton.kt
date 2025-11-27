@@ -39,6 +39,11 @@ class ClickGUIShortcutButton(
             windowAnimations = android.R.style.Animation_Toast
             x = module.shortcutX
             y = module.shortcutY
+
+            val context = com.radiantbyte.novaclient.overlay.OverlayManager.currentContext
+            val shortcutOpacity = context?.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                ?.getFloat("shortcut_opacity", 1f) ?: 1f
+            alpha = shortcutOpacity
         }
     }
 

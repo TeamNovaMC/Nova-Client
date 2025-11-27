@@ -41,6 +41,11 @@ class ClickGUIButton : OverlayWindow() {
             windowAnimations = android.R.style.Animation_Toast
             x = 0
             y = 100
+
+            val context = OverlayManager.currentContext
+            val overlayOpacity = context?.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                ?.getFloat("overlay_opacity", 1f) ?: 1f
+            alpha = overlayOpacity
         }
     }
 
