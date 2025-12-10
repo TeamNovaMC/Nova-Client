@@ -16,25 +16,21 @@
 
 package org.cloudburstmc.netty.handler.codec.raknet.server;
 
-import org.cloudburstmc.netty.channel.raknet.RakServerChannel;
-import org.cloudburstmc.netty.channel.raknet.config.RakServerMetrics;
-
-import java.net.InetAddress;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.ScheduledFuture;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import org.cloudburstmc.netty.channel.raknet.RakServerChannel;
+import org.cloudburstmc.netty.channel.raknet.config.RakServerMetrics;
+
+import java.net.InetAddress;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class RakServerRateLimiter extends SimpleChannelInboundHandler<DatagramPacket> {
     public static final String NAME = "rak-server-rate-limiter";
@@ -69,12 +65,12 @@ public class RakServerRateLimiter extends SimpleChannelInboundHandler<DatagramPa
         this.rateLimitMap.clear();
     }
 
-    private void onRakTick() {
+    protected void onRakTick() {
         this.rateLimitMap.clear();
         this.globalCounter.set(0);
     }
 
-    private void onBlockedTick() {
+    protected void onBlockedTick() {
         long currTime = System.currentTimeMillis();
 
         RakServerMetrics metrics = this.channel.config().getMetrics();
@@ -130,6 +126,14 @@ public class RakServerRateLimiter extends SimpleChannelInboundHandler<DatagramPa
         this.exceptions.remove(address);
     }
 
+    public Collection<InetAddress> getExceptions() {
+        return Collections.unmodifiableCollection(this.exceptions);
+    }
+
+    protected int getAddressMaxPacketCount(InetAddress address) {
+        return this.channel.config().getPacketLimit();
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagram) throws Exception {
         if (this.globalCounter.incrementAndGet() > this.channel.config().getGlobalPacketLimit()) {
@@ -145,7 +149,7 @@ public class RakServerRateLimiter extends SimpleChannelInboundHandler<DatagramPa
         }
 
         AtomicInteger counter = this.rateLimitMap.computeIfAbsent(address, a -> new AtomicInteger());
-        if (counter.incrementAndGet() > this.channel.config().getPacketLimit() &&
+        if (counter.incrementAndGet() > this.getAddressMaxPacketCount(address) &&
                 this.blockAddress(address, 10, TimeUnit.SECONDS)) {
             log.warn("[{}] Blocked because packet limit was reached", address);
         } else {

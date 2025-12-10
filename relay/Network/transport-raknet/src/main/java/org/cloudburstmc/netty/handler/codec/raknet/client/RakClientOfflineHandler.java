@@ -16,43 +16,23 @@
 
 package org.cloudburstmc.netty.handler.codec.raknet.client;
 
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.ID_ALREADY_CONNECTED;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.ID_INCOMPATIBLE_PROTOCOL_VERSION;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.ID_IP_RECENTLY_CONNECTED;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.ID_NO_FREE_INCOMING_CONNECTIONS;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.ID_OPEN_CONNECTION_REPLY_1;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.ID_OPEN_CONNECTION_REPLY_2;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.ID_OPEN_CONNECTION_REQUEST_1;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.ID_OPEN_CONNECTION_REQUEST_2;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.UDP_HEADER_SIZE;
-
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.*;
+import io.netty.handler.codec.CorruptedFrameException;
+import io.netty.util.concurrent.ScheduledFuture;
 import org.cloudburstmc.netty.channel.raknet.RakChannel;
 import org.cloudburstmc.netty.channel.raknet.RakDisconnectReason;
 import org.cloudburstmc.netty.channel.raknet.RakOfflineState;
 import org.cloudburstmc.netty.channel.raknet.config.RakChannelOption;
-import org.cloudburstmc.netty.handler.codec.raknet.common.ConnectedPingHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.ConnectedPongHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.DisconnectNotificationHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.EncapsulatedToMessageHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.RakAcknowledgeHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.RakDatagramCodec;
-import org.cloudburstmc.netty.handler.codec.raknet.common.RakSessionCodec;
+import org.cloudburstmc.netty.handler.codec.raknet.common.*;
 import org.cloudburstmc.netty.util.RakUtils;
 
 import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelException;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.ConnectTimeoutException;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.CorruptedFrameException;
-import io.netty.util.concurrent.ScheduledFuture;
+import static org.cloudburstmc.netty.channel.raknet.RakConstants.*;
 
 public class RakClientOfflineHandler extends SimpleChannelInboundHandler<ByteBuf> {
     public static final String NAME = "rak-client-handler";
@@ -78,7 +58,7 @@ public class RakClientOfflineHandler extends SimpleChannelInboundHandler<ByteBuf
         long timeout = this.rakChannel.config().getOption(RakChannelOption.RAK_CONNECT_TIMEOUT);
         this.timeoutFuture = channel.eventLoop().schedule(this::onTimeout, timeout, TimeUnit.MILLISECONDS);
         this.retryFuture = channel.eventLoop().scheduleAtFixedRate(() -> this.onRetryAttempt(channel), 0,
-            this.rakChannel.config().getOption(RakChannelOption.RAK_TIME_BETWEEN_SEND_CONNECTION_ATTEMPTS_MS), TimeUnit.MILLISECONDS);
+                this.rakChannel.config().getOption(RakChannelOption.RAK_TIME_BETWEEN_SEND_CONNECTION_ATTEMPTS_MS), TimeUnit.MILLISECONDS);
         this.successPromise.addListener(future -> safeCancel(this.timeoutFuture, channel));
         this.successPromise.addListener(future -> safeCancel(this.retryFuture, channel));
 
@@ -96,14 +76,21 @@ public class RakClientOfflineHandler extends SimpleChannelInboundHandler<ByteBuf
     }
 
     private void onRetryAttempt(Channel channel) {
-        switch (this.state) {
-            case HANDSHAKE_1:
+        if (this.rakChannel.config().getOption(RakChannelOption.RAK_COMPATIBILITY_MODE)) {
+            if (this.state != RakOfflineState.HANDSHAKE_COMPLETED) {
                 this.sendOpenConnectionRequest1(channel);
                 this.connectionAttempts++;
-                break;
-            case HANDSHAKE_2:
-                this.sendOpenConnectionRequest2(channel);
-                break;
+            }
+        } else {
+            switch (this.state) {
+                case HANDSHAKE_1:
+                    this.sendOpenConnectionRequest1(channel);
+                    this.connectionAttempts++;
+                    break;
+                case HANDSHAKE_2:
+                    this.sendOpenConnectionRequest2(channel);
+                    break;
+            }
         }
     }
 
@@ -178,6 +165,8 @@ public class RakClientOfflineHandler extends SimpleChannelInboundHandler<ByteBuf
         if (security) {
             this.cookie = buffer.readInt();
             this.security = true;
+        } else {
+            this.security = false;
         }
         int mtu = buffer.readShort();
 
