@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandOriginData;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandOutputMessage;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandOutputType;
@@ -16,11 +17,12 @@ import java.util.List;
 @EqualsAndHashCode(doNotUseGetters = true)
 @ToString(doNotUseGetters = true)
 public class CommandOutputPacket implements BedrockPacket {
-    public final List<CommandOutputMessage> messages = new ObjectArrayList<>();
-    public CommandOriginData commandOriginData;
-    public CommandOutputType type;
-    public int successCount;
-    public String data;
+    private final List<CommandOutputMessage> messages = new ObjectArrayList<>();
+    private CommandOriginData commandOriginData;
+    private CommandOutputType type;
+    private int successCount;
+    @Nullable
+    private String data;
 
     @Override
     public final PacketSignal handle(BedrockPacketHandler handler) {
