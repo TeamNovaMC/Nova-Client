@@ -30,6 +30,4 @@ dependencies {
     
     api(libs.bundles.netty)
     api(libs.expiringmap)
-    testImplementation(libs.testng)
-    testImplementation(libs.junit.jupiter)
 }

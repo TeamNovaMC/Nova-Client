@@ -3,8 +3,7 @@ package com.radiantbyte.novarelay.listener
 import com.radiantbyte.novarelay.NovaRelaySession
 import com.radiantbyte.novarelay.util.AuthUtils
 import com.radiantbyte.novarelay.util.refresh
-import net.kyori.adventure.text.Component
-import net.raphimc.minecraftauth.step.bedrock.session.StepFullBedrockSession
+import net.raphimc.minecraftauth.bedrock.BedrockAuthManager
 import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
 import org.cloudburstmc.protocol.bedrock.data.auth.AuthType
 import org.cloudburstmc.protocol.bedrock.data.auth.CertificateChainPayload
@@ -14,27 +13,26 @@ import org.cloudburstmc.protocol.bedrock.util.JsonUtils
 import org.jose4j.json.JsonUtil
 import org.jose4j.json.internal.json_simple.JSONObject
 import org.jose4j.jws.JsonWebSignature
-import org.jose4j.jwx.HeaderParameterNames
-import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 
 @Suppress("MemberVisibilityCanBePrivate")
 class OnlineLoginPacketListener(
     val novaRelaySession: NovaRelaySession,
-    private var fullBedrockSession: StepFullBedrockSession.FullBedrockSession
+    private var authManager: BedrockAuthManager
 ) : NovaRelayPacketListener {
 
     private var skinData: JSONObject? = null
 
     override fun beforeClientBound(packet: BedrockPacket): Boolean {
         if (packet is LoginPacket) {
-            if (fullBedrockSession.isExpired) {
+            val certChain = authManager.minecraftCertificateChain
+            if (certChain.hasValue() && certChain.cached.isExpired) {
                 println("Session expired, attempting to refresh tokens...")
 
                 try {
-                    fullBedrockSession = fullBedrockSession.refresh()
-                    println("Successfully refreshed session for: ${fullBedrockSession.mcChain.displayName}")
+                    authManager = authManager.refresh()
+                    println("Successfully refreshed session for: ${certChain.upToDate.identityDisplayName}")
                 } catch (e: Exception) {
                     println("Failed to refresh session: ${e.message}")
                     e.printStackTrace()
@@ -75,10 +73,10 @@ class OnlineLoginPacketListener(
             }
 
             try {
-                val chain = AuthUtils.fetchOnlineChain(fullBedrockSession)
+                val chain = AuthUtils.fetchOnlineChain(authManager)
                 val skinData =
                     AuthUtils.fetchOnlineSkinData(
-                        fullBedrockSession,
+                        authManager,
                         skinData!!,
                         novaRelaySession.novaRelay.remoteAddress!!
                     )
@@ -119,7 +117,7 @@ class OnlineLoginPacketListener(
                 val salt = java.util.Base64.getDecoder().decode(saltString)
                 
                 val key = EncryptionUtils.getSecretKey(
-                    fullBedrockSession.mcChain.privateKey, 
+                    authManager.sessionKeyPair.private, 
                     serverKey,
                     salt
                 )

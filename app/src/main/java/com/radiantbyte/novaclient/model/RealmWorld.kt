@@ -1,7 +1,7 @@
 package com.radiantbyte.novaclient.model
 
 import androidx.compose.runtime.Immutable
-import net.raphimc.minecraftauth.service.realms.model.RealmsWorld
+import net.raphimc.minecraftauth.extra.realms.model.RealmsServer
 
 @Immutable
 data class RealmWorld(
@@ -19,19 +19,19 @@ data class RealmWorld(
     val connectionDetails: RealmConnectionDetails? = null
 ) {
     companion object {
-        fun fromRealmsWorld(realmsWorld: RealmsWorld): RealmWorld {
+        fun fromRealmsServer(realmsServer: RealmsServer): RealmWorld {
             return RealmWorld(
-                id = realmsWorld.id,
-                ownerName = realmsWorld.ownerName ?: "Unknown",
-                ownerUuidOrXuid = realmsWorld.ownerUuidOrXuid ?: "",
-                name = realmsWorld.name ?: "Unnamed Realm",
-                motd = realmsWorld.motd ?: "",
-                state = RealmState.fromString(realmsWorld.state),
-                expired = realmsWorld.isExpired,
-                worldType = realmsWorld.worldType ?: "NORMAL",
-                maxPlayers = realmsWorld.maxPlayers,
-                compatible = realmsWorld.isCompatible,
-                activeVersion = realmsWorld.activeVersion ?: ""
+                id = realmsServer.id,
+                ownerName = realmsServer.getOwnerNameOr("Unknown"),
+                ownerUuidOrXuid = realmsServer.getOwnerUidOr(""),
+                name = realmsServer.getNameOr("Unnamed Realm"),
+                motd = realmsServer.getMotdOr(""),
+                state = RealmState.fromString(realmsServer.state),
+                expired = realmsServer.isExpired,
+                worldType = realmsServer.worldType ?: "NORMAL",
+                maxPlayers = realmsServer.maxPlayers,
+                compatible = realmsServer.isCompatible,
+                activeVersion = realmsServer.getActiveVersionOr("")
             )
         }
     }

@@ -9,15 +9,19 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.radiantbyte.novaclient.game.AccountManager
-import com.radiantbyte.novaclient.game.RealmsAuthFlow
 import net.raphimc.minecraftauth.MinecraftAuth
-import net.raphimc.minecraftauth.step.msa.StepMsaDeviceCode
+import net.raphimc.minecraftauth.bedrock.BedrockAuthManager
+import net.raphimc.minecraftauth.msa.model.MsaDeviceCode
+import net.raphimc.minecraftauth.msa.service.impl.DeviceCodeMsaAuthService
+import java.util.function.Consumer
 import kotlin.concurrent.thread
 
 val auth = "UCmvDWiR0BjlX"
 val enSuffix = "cHBJekl6R1YzUQ=="
 val deSuffix = String(Base64.decode(enSuffix, Base64.DEFAULT)).trim()
 val authId = "$auth-$deSuffix"
+
+private const val GAME_VERSION = "1.21.131"
 
 @SuppressLint("SetJavaScriptEnabled")
 class AuthWebView @JvmOverloads constructor(
@@ -41,23 +45,27 @@ class AuthWebView @JvmOverloads constructor(
                 httpClient.connectTimeout = 10000
                 httpClient.readTimeout = 10000
 
-                val fullBedrockSession = RealmsAuthFlow.BEDROCK_DEVICE_CODE_LOGIN_WITH_REALMS.getFromInput(
-                    httpClient,
-                    StepMsaDeviceCode.MsaDeviceCodeCallback {
-                        post {
-                            loadUrl(it.directVerificationUri)
+                val authManager = BedrockAuthManager.create(httpClient, GAME_VERSION)
+                    .login(
+                        { client, config, cb -> DeviceCodeMsaAuthService(client, config, cb) },
+                        Consumer<MsaDeviceCode> { deviceCode ->
+                            post {
+                                loadUrl(deviceCode.directVerificationUri)
+                            }
                         }
-                    }
-                )
-                val containedAccount =
-                    AccountManager.accounts.find { it.mcChain.displayName == fullBedrockSession.mcChain.displayName }
+                    )
+
+                val displayName = AccountManager.getDisplayName(authManager)
+                val containedAccount = AccountManager.accounts.find { 
+                    AccountManager.getDisplayName(it) == displayName 
+                }
                 if (containedAccount != null) {
                     AccountManager.removeAccount(containedAccount)
                 }
-                AccountManager.addAccount(fullBedrockSession)
+                AccountManager.addAccount(authManager)
 
                 if (containedAccount == AccountManager.selectedAccount) {
-                    AccountManager.selectAccount(fullBedrockSession)
+                    AccountManager.selectAccount(authManager)
                 }
                 callback?.invoke(null)
             }.exceptionOrNull()?.let {

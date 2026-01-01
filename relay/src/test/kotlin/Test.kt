@@ -14,9 +14,10 @@ fun main() {
 
     Definitions.loadBlockPalette()
 
-    var fullBedrockSession = authorize()
-    if (fullBedrockSession.isExpired) {
-        fullBedrockSession = fullBedrockSession.refresh()
+    var authManager = authorize()
+    val certChain = authManager.minecraftCertificateChain
+    if (certChain.hasValue() && certChain.cached.isExpired) {
+        authManager = authManager.refresh()
     }
 
     captureGamePacket(
@@ -24,7 +25,7 @@ fun main() {
         remoteAddress = remoteAddress
     ) {
         listeners.add(AutoCodecPacketListener(this))
-        listeners.add(OnlineLoginPacketListener(this, fullBedrockSession))
+        listeners.add(OnlineLoginPacketListener(this, authManager))
         listeners.add(GamingPacketHandler(this))
         listeners.add(TransferPacketListener(this))
         listeners.add(MessagePacketListener(this))

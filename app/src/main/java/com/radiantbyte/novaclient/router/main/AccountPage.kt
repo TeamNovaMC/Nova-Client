@@ -32,10 +32,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.contentColorFor
-import com.radiantbyte.novaclient.ui.component.NovaGlassCard
-import com.radiantbyte.novaclient.ui.component.NovaFloatingActionButton
-import com.radiantbyte.novaclient.ui.theme.NovaColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -51,13 +47,14 @@ import androidx.compose.ui.window.DialogProperties
 import com.radiantbyte.novaclient.R
 import com.radiantbyte.novaclient.game.AccountManager
 import com.radiantbyte.novaclient.ui.component.AuthWebView
+import com.radiantbyte.novaclient.ui.theme.NovaColors
 import com.radiantbyte.novaclient.util.LocalSnackbarHostState
 import com.radiantbyte.novaclient.util.SnackbarHostStateScope
 import com.radiantbyte.novaclient.util.getActivityWindow
 import com.radiantbyte.novaclient.util.getDialogWindow
 import com.radiantbyte.novaclient.util.windowFullScreen
 import kotlinx.coroutines.launch
-import net.raphimc.minecraftauth.step.bedrock.session.StepFullBedrockSession.FullBedrockSession
+import net.raphimc.minecraftauth.bedrock.BedrockAuthManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +63,7 @@ fun AccountPageContent() {
         val context = LocalContext.current
         val coroutineScope = rememberCoroutineScope()
         var showAddAccountDropDownMenu by remember { mutableStateOf(false) }
-        var selectedAccountAction: FullBedrockSession? by remember { mutableStateOf(null) }
+        var selectedAccountAction: BedrockAuthManager? by remember { mutableStateOf(null) }
         var login: Boolean by remember { mutableStateOf(false) }
         val snackbarHostState = LocalSnackbarHostState.current
 
@@ -139,7 +136,7 @@ fun AccountPageContent() {
                                 containerColor = MaterialTheme.colorScheme.surfaceContainer
                             ),
                             headlineContent = {
-                                Text(account.mcChain.displayName)
+                                Text(AccountManager.getDisplayName(account))
                             },
                             supportingContent = {
                                 Row(Modifier.fillMaxWidth()) {

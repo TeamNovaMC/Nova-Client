@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -78,17 +79,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     composeCompiler {
         includeTraceMarkers = false
         includeSourceInformation = false
-        generateFunctionKeyMetaClasses = false
         featureFlags = setOf(
             ComposeFeatureFlag.OptimizeNonSkippingGroups,
             ComposeFeatureFlag.PausableComposition
         )
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
