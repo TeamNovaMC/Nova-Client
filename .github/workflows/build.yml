@@ -25,19 +25,12 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build Android APK and Desktop JAR
-      run: ./gradlew buildDebugAll --stacktrace
+    - name: Build Android APK
+      run: ./gradlew :app:assembleDebug --stacktrace
       
     - name: Upload Android APK
       uses: actions/upload-artifact@v4
       with:
         name: NovaClient-Android-Debug
         path: app/build/outputs/apk/debug/*.apk
-        retention-days: 90
-        
-    - name: Upload Desktop JAR
-      uses: actions/upload-artifact@v4
-      with:
-        name: NovaClient-Desktop
-        path: desktop/build/libs/*.jar
         retention-days: 90
