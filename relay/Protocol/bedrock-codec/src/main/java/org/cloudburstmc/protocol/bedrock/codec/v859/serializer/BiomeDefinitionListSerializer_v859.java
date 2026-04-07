@@ -48,7 +48,7 @@ public class BiomeDefinitionListSerializer_v859 extends BiomeDefinitionListSeria
                 hasFrozenOceanSurface, hasTheEndSurface,
                 mesaSurface, cappedSurface,
                 overworldGenRules, multinoiseGenRules,
-                legacyWorldGenRules, replacementData);
+                legacyWorldGenRules, replacementData, null);
     }
 
     protected void writeBiomeReplacementData(ByteBuf buffer, BedrockCodecHelper helper, BiomeReplacementData replacementData) {

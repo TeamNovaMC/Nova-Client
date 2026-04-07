@@ -16,11 +16,15 @@
 
 package org.cloudburstmc.netty;
 
-import org.cloudburstmc.netty.channel.raknet.RakChannelFactory;
-import org.cloudburstmc.netty.channel.raknet.RakChildChannel;
-import org.cloudburstmc.netty.channel.raknet.RakClientChannel;
-import org.cloudburstmc.netty.channel.raknet.RakConstants;
-import org.cloudburstmc.netty.channel.raknet.RakServerChannel;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import org.cloudburstmc.netty.channel.raknet.*;
 import org.cloudburstmc.netty.channel.raknet.config.RakChannelOption;
 import org.cloudburstmc.netty.channel.raknet.packet.RakMessage;
 import org.junit.jupiter.api.Test;
@@ -33,20 +37,6 @@ import java.security.SecureRandom;
 import java.util.StringJoiner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
-
-import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 
 public class RakTests {
 
@@ -145,36 +135,11 @@ public class RakTests {
                 .awaitUninterruptibly();
     }
 
-    public void setupCookieServer() {
-        serverBootstrap()
-                .option(RakChannelOption.RAK_SEND_COOKIE, true)
-                .bind(new InetSocketAddress("127.0.0.1", 19132))
-                .awaitUninterruptibly();
-    }
-
     @Test
     public void testClientConnect() {
         setupServer();
         int mtu = RakConstants.MAXIMUM_MTU_SIZE;
         System.out.println("Testing client with MTU " + mtu);
-
-        clientBootstrap(mtu)
-                .handler(new ChannelInitializer<RakClientChannel>() {
-                    @Override
-                    protected void initChannel(RakClientChannel ch) throws Exception {
-                        System.out.println("Client channel initialized");
-                    }
-                })
-                .connect(new InetSocketAddress("127.0.0.1", 19132))
-                .awaitUninterruptibly()
-                .channel();
-    }
-
-    @Test
-    public void testClientConnectWithCookie() {
-        setupCookieServer();
-        int mtu = RakConstants.MAXIMUM_MTU_SIZE;
-        System.out.println("Testing client with MTU " + mtu + " and cookie enabled");
 
         clientBootstrap(mtu)
                 .handler(new ChannelInitializer<RakClientChannel>() {

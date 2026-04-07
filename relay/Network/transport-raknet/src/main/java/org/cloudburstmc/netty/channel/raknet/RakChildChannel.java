@@ -16,15 +16,12 @@
 
 package org.cloudburstmc.netty.channel.raknet;
 
+import io.netty.channel.*;
+import io.netty.util.ReferenceCountUtil;
+import org.cloudburstmc.netty.channel.raknet.config.DefaultChannelToServerProxyMetrics;
 import org.cloudburstmc.netty.channel.raknet.config.DefaultRakSessionConfig;
 import org.cloudburstmc.netty.channel.raknet.config.RakChannelConfig;
-import org.cloudburstmc.netty.handler.codec.raknet.common.ConnectedPingHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.ConnectedPongHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.DisconnectNotificationHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.RakAcknowledgeHandler;
-import org.cloudburstmc.netty.handler.codec.raknet.common.RakDatagramCodec;
-import org.cloudburstmc.netty.handler.codec.raknet.common.RakSessionCodec;
-import org.cloudburstmc.netty.handler.codec.raknet.common.RakUnhandledMessagesQueue;
+import org.cloudburstmc.netty.handler.codec.raknet.common.*;
 import org.cloudburstmc.netty.handler.codec.raknet.server.RakChildDatagramHandler;
 import org.cloudburstmc.netty.handler.codec.raknet.server.RakServerOnlineInitialHandler;
 
@@ -33,15 +30,6 @@ import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NonWritableChannelException;
 import java.util.function.Consumer;
-
-import io.netty.channel.AbstractChannel;
-import io.netty.channel.ChannelMetadata;
-import io.netty.channel.ChannelOutboundBuffer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.DefaultChannelPipeline;
-import io.netty.channel.EventLoop;
-import io.netty.util.ReferenceCountUtil;
 
 public class RakChildChannel extends AbstractChannel implements RakChannel {
 
@@ -54,13 +42,12 @@ public class RakChildChannel extends AbstractChannel implements RakChannel {
     private volatile boolean open = true;
     private volatile boolean active;
 
-    RakChildChannel(InetSocketAddress remoteAddress, InetSocketAddress localAddress, RakServerChannel parent, long guid, int version, int mtu, Consumer<RakChannel> childConsumer) {
+    RakChildChannel(InetSocketAddress remoteAddress, InetSocketAddress localAddress, RakServerChannel parent, long guid, int mtu, Consumer<RakChannel> childConsumer) {
         super(parent);
         this.remoteAddress = remoteAddress;
         this.localAddress = localAddress;
-        this.config = new DefaultRakSessionConfig(this);
+        this.config = new DefaultRakSessionConfig(this, new DefaultChannelToServerProxyMetrics(parent, this));
         this.config.setGuid(guid);
-        this.config.setProtocolVersion(version);
         this.config.setMtu(mtu);
         // Allow user to configure the child channel before we initialize pipeline
         // This is not the same as bootstrap.childOption() as Bootstrap does not allow setting options per channel

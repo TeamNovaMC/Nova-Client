@@ -926,5 +926,89 @@ public enum SoundEvent {
      * @since v897
      */
     WOODEN_SPEAR_USE,
+    /**
+     * @since v924
+     */
+    SADDLE_IN_WATER,
+    /**
+     * @since v924
+     */
+    STONE_SPEAR_ATTACK_HIT,
+    /**
+     * @since v924
+     */
+    IRON_SPEAR_ATTACK_HIT,
+    /**
+     * @since v924
+     */
+    COPPER_SPEAR_ATTACK_HIT,
+    /**
+     * @since v924
+     */
+    GOLDEN_SPEAR_ATTACK_HIT,
+    /**
+     * @since v924
+     */
+    DIAMOND_SPEAR_ATTACK_HIT,
+    /**
+     * @since v924
+     */
+    NETHERITE_SPEAR_ATTACK_HIT,
+    /**
+     * @since v924
+     */
+    STONE_SPEAR_ATTACK_MISS,
+    /**
+     * @since v924
+     */
+    IRON_SPEAR_ATTACK_MISS,
+    /**
+     * @since v924
+     */
+    COPPER_SPEAR_ATTACK_MISS,
+    /**
+     * @since v924
+     */
+    GOLDEN_SPEAR_ATTACK_MISS,
+    /**
+     * @since v924
+     */
+    DIAMOND_SPEAR_ATTACK_MISS,
+    /**
+     * @since v924
+     */
+    NETHERITE_SPEAR_ATTACK_MISS,
+    /**
+     * @since v924
+     */
+    STONE_SPEAR_USE,
+    /**
+     * @since v924
+     */
+    IRON_SPEAR_USE,
+    /**
+     * @since v924
+     */
+    COPPER_SPEAR_USE,
+    /**
+     * @since v924
+     */
+    GOLDEN_SPEAR_USE,
+    /**
+     * @since v924
+     */
+    DIAMOND_SPEAR_USE,
+    /**
+     * @since v924
+     */
+    NETHERITE_SPEAR_USE,
+    /**
+     * @since v944
+     */
+    PAUSE_GROWTH,
+    /**
+     * @since v944
+     */
+    RESET_GROWTH,
     UNDEFINED
 }

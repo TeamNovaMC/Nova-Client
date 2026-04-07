@@ -11,17 +11,17 @@ import java.awt.*;
 @EqualsAndHashCode(callSuper = true)
 public class DebugArrow extends DebugShape {
 
-    @Nullable
     Vector3f arrowEndPosition;
-    @Nullable
     Float arrowHeadLength;
-    @Nullable
     Float arrowHeadRadius;
-    @Nullable
     Integer arrowHeadSegments;
 
-    public DebugArrow(long id, int dimension, @Nullable Vector3f position, @Nullable Float scale, @Nullable Vector3f rotation, @Nullable Float totalTimeLeft, @Nullable Color color, @Nullable Vector3f arrowEndPosition, @Nullable Float arrowHeadLength, @Nullable Float arrowHeadRadius, @Nullable Integer arrowHeadSegments) {
-        super(id, dimension, position, scale, rotation, totalTimeLeft, color);
+    public DebugArrow(long id, int dimension, @Nullable Vector3f position, @Nullable Float scale, @Nullable Vector3f rotation, @Nullable Float totalTimeLeft, @Nullable Color color, Vector3f arrowEndPosition, Float arrowHeadLength, Float arrowHeadRadius, Integer arrowHeadSegments) {
+        this(id, dimension, position, scale, rotation, totalTimeLeft, color, arrowEndPosition, arrowHeadLength, arrowHeadRadius, arrowHeadSegments, null);
+    }
+
+    public DebugArrow(long id, int dimension, @Nullable Vector3f position, @Nullable Float scale, @Nullable Vector3f rotation, @Nullable Float totalTimeLeft, @Nullable Color color, Vector3f arrowEndPosition, Float arrowHeadLength, Float arrowHeadRadius, Integer arrowHeadSegments, @Nullable Long attachedToEntityId) {
+        super(id, dimension, position, scale, rotation, totalTimeLeft, color, attachedToEntityId);
         this.arrowEndPosition = arrowEndPosition;
         this.arrowHeadLength = arrowHeadLength;
         this.arrowHeadRadius = arrowHeadRadius;

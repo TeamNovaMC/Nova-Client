@@ -152,5 +152,49 @@ public enum DisconnectFailReason {
     /**
      * @since v859
      */
-    HOST_WITHOUT_KEYS
+    HOST_WITHOUT_KEYS,
+    /**
+     * @since v924
+     */
+    HOST_SIGNED_OUT,
+    /**
+     * @since v924
+     */
+    SCRIPT_WATCHDOG_EXCEPTION,
+    /**
+     * @since v924
+     */
+    SCRIPT_MEMORY_LIMIT_EXCEEDED,
+    /**
+     * @since v924
+     */
+    STORAGE_LOW_DURING_GAMEPLAY,
+    /**
+     * @since v924
+     */
+    STORAGE_FULL_DURING_GAMEPLAY,
+    /**
+     * @since v924
+     */
+    LEVEL_STORAGE_CORRUPTION,
+    /**
+     * @since v924
+     */
+    EDITION_MISMATCH_VANILLA_TO_EDU,
+    /**
+     * @since v924
+     */
+    EDITION_MISMATCH_EDU_TO_VANILLA,
+    /**
+     * @since v924
+     */
+    EDITOR_MISMATCH_EDITOR_TO_VANILLA,
+    /**
+     * @since v924
+     */
+    EDITOR_MISMATCH_VANILLA_TO_EDITOR,
+    /**
+     * @since v924
+     */
+    DENY_LISTED
 }

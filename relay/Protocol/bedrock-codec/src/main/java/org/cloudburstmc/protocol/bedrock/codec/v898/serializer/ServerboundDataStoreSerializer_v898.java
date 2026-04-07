@@ -21,13 +21,13 @@ public class ServerboundDataStoreSerializer_v898 implements BedrockPacketSeriali
 
         Object value = packet.getUpdate().getData();
 
-        int type = value instanceof Double ? 0 : value instanceof Boolean ? 1 : value instanceof String ? 2 : -1;
+        int type = value instanceof Number ? 0 : value instanceof Boolean ? 1 : value instanceof String ? 2 : -1;
 
         VarInts.writeUnsignedInt(buffer, type);
 
         switch (type) {
             case 0:
-                buffer.writeDoubleLE((double) value);
+                buffer.writeDoubleLE(((Number) value).doubleValue());
                 break;
             case 1:
                 buffer.writeBoolean((boolean) value);

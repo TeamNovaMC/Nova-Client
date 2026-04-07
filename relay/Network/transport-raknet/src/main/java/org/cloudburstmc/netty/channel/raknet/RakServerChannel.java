@@ -16,9 +16,19 @@
 
 package org.cloudburstmc.netty.channel.raknet;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.ServerChannel;
+import io.netty.channel.socket.DatagramChannel;
+import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.util.concurrent.PromiseCombiner;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.cloudburstmc.netty.channel.proxy.ProxyChannel;
 import org.cloudburstmc.netty.channel.raknet.config.DefaultRakServerConfig;
+import org.cloudburstmc.netty.channel.raknet.config.RakChannelOption;
 import org.cloudburstmc.netty.channel.raknet.config.RakServerChannelConfig;
+import org.cloudburstmc.netty.channel.raknet.config.RakServerCookieMode;
 import org.cloudburstmc.netty.handler.codec.raknet.common.UnconnectedPongEncoder;
 import org.cloudburstmc.netty.handler.codec.raknet.server.RakServerOfflineHandler;
 import org.cloudburstmc.netty.handler.codec.raknet.server.RakServerRateLimiter;
@@ -33,15 +43,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.ServerChannel;
-import io.netty.channel.socket.DatagramChannel;
-import io.netty.util.concurrent.GenericFutureListener;
-import io.netty.util.concurrent.PromiseCombiner;
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class RakServerChannel extends ProxyChannel<DatagramChannel> implements ServerChannel {
 
@@ -59,7 +60,10 @@ public class RakServerChannel extends ProxyChannel<DatagramChannel> implements S
         super(channel);
         this.childConsumer = childConsumer;
         this.config = new DefaultRakServerConfig(this);
-        // Default common handler of offline phase. Handles only raknet packets, forwards rest.
+        this.initPipeline();
+    }
+
+    protected void initPipeline() {
         this.pipeline().addLast(UnconnectedPongEncoder.NAME, UnconnectedPongEncoder.INSTANCE);
         if (this.config().getPacketLimit() > 0) { // No point in enabling this.
             this.pipeline().addLast(RakServerRateLimiter.NAME, new RakServerRateLimiter(this));
@@ -72,13 +76,14 @@ public class RakServerChannel extends ProxyChannel<DatagramChannel> implements S
     /**
      * Create new child channel assigned to remote address.
      *
-     * @param address remote address of new connection.
-     * @return RakChildChannel instance of new channel.
+     * @param address         remote address of new connection.
+     * @param protocolVersion RakNet protocol version from the handshake cookie, or 0 if not available.
+     * @return RakChildChannel instance of new channel, or {@code null} if a non-replaceable channel already exists.
      */
-    public RakChildChannel createChildChannel(InetSocketAddress address, InetSocketAddress localAddress,
-                                              long clientGuid, int protocolVersion, int mtu) {
+    public RakChildChannel createChildChannel(InetSocketAddress address, InetSocketAddress localAddress, long clientGuid, int mtu, int protocolVersion) {
         RakChildChannel existingChannel = this.childChannelMap.get(address);
-        if (this.config().getSendCookie() && existingChannel != null) {
+        if (this.config().getCookieMode() != RakServerCookieMode.INVALID &&
+                this.config().getCookieMode() != RakServerCookieMode.OFF && existingChannel != null) {
             // We know this player is coming from this IP address due to the cookie, so we can safely close the existing channel.
             existingChannel.close();
         } else if (existingChannel != null) {
@@ -86,8 +91,12 @@ public class RakServerChannel extends ProxyChannel<DatagramChannel> implements S
             return null;
         }
 
-        RakChildChannel channel = new RakChildChannel(address, localAddress, this, clientGuid, protocolVersion, mtu, childConsumer);
+        RakChildChannel channel = new RakChildChannel(address, localAddress, this, clientGuid, mtu, childConsumer);
         channel.closeFuture().addListener((GenericFutureListener<ChannelFuture>) this::onChildClosed);
+        // Set before fireChannelRead because initChannel runs async on the child worker thread.
+        if (protocolVersion != 0) {
+            channel.config().setOption(RakChannelOption.RAK_PROTOCOL_VERSION, protocolVersion);
+        }
         // Fire channel thought ServerBootstrap,
         // register to eventLoop, assign default options and attributes
         this.pipeline().fireChannelRead(channel).fireChannelReadComplete();

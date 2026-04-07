@@ -16,14 +16,14 @@
 
 package org.cloudburstmc.netty.channel.raknet.config;
 
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.MAXIMUM_MTU_SIZE;
-import static org.cloudburstmc.netty.channel.raknet.RakConstants.SESSION_TIMEOUT_MS;
-
-import java.util.Map;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.DefaultChannelConfig;
+
+import java.util.Map;
+
+import static org.cloudburstmc.netty.channel.raknet.RakConstants.MAXIMUM_MTU_SIZE;
+import static org.cloudburstmc.netty.channel.raknet.RakConstants.SESSION_TIMEOUT_MS;
 
 /**
  * The default {@link RakChannelConfig} implementation for RakNet server child channel or client channel.
@@ -42,6 +42,11 @@ public class DefaultRakSessionConfig extends DefaultChannelConfig implements Rak
 
     public DefaultRakSessionConfig(Channel channel) {
         super(channel);
+    }
+
+    public DefaultRakSessionConfig(Channel channel, RakChannelMetrics metrics) {
+        super(channel);
+        this.metrics = metrics;
     }
 
     @Override

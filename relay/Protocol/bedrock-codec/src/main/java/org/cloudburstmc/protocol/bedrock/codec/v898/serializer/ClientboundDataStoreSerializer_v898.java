@@ -11,6 +11,9 @@ import org.cloudburstmc.protocol.bedrock.data.datastore.DataStoreUpdate;
 import org.cloudburstmc.protocol.bedrock.packet.ClientboundDataStorePacket;
 import org.cloudburstmc.protocol.common.util.VarInts;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ClientboundDataStoreSerializer_v898 implements BedrockPacketSerializer<ClientboundDataStorePacket> {
 
@@ -29,13 +32,13 @@ public class ClientboundDataStoreSerializer_v898 implements BedrockPacketSeriali
 
                     Object value = ((DataStoreUpdate) action).getData();
 
-                    int type = value instanceof Double ? 0 : value instanceof Boolean ? 1 : value instanceof String ? 2 : -1;
+                    int type = value instanceof Number ? 0 : value instanceof Boolean ? 1 : value instanceof String ? 2 : -1;
 
                     VarInts.writeUnsignedInt(buffer, type);
 
                     switch (type) {
                         case 0:
-                            buffer.writeDoubleLE((double) value);
+                            buffer.writeDoubleLE(((Number) value).doubleValue());
                             break;
                         case 1:
                             buffer.writeBoolean((boolean) value);
@@ -44,7 +47,7 @@ public class ClientboundDataStoreSerializer_v898 implements BedrockPacketSeriali
                             helper.writeString(buffer, (String) value);
                             break;
                         default:
-                            throw new IllegalStateException("Invalid data store data type");
+                            throw new IllegalStateException("Invalid data store data type " + type);
                     }
 
                     buffer.writeIntLE(((DataStoreUpdate) action).getUpdateCount());
@@ -53,26 +56,7 @@ public class ClientboundDataStoreSerializer_v898 implements BedrockPacketSeriali
                     helper.writeString(buffer, ((DataStoreChange) action).getDataStoreName());
                     helper.writeString(buffer, ((DataStoreChange) action).getProperty());
                     buffer.writeIntLE(((DataStoreChange) action).getUpdateCount());
-
-                    value = ((DataStoreChange) action).getNewValue();
-
-                    type = value instanceof Double ? 0 : value instanceof Boolean ? 1 : value instanceof String ? 2 : -1;
-
-                    VarInts.writeUnsignedInt(buffer, type);
-
-                    switch (type) {
-                        case 0:
-                            buffer.writeDoubleLE((double) value);
-                            break;
-                        case 1:
-                            buffer.writeBoolean((boolean) value);
-                            break;
-                        case 2:
-                            helper.writeString(buffer, (String) value);
-                            break;
-                        default:
-                            throw new IllegalStateException("Invalid data store data type");
-                    }
+                    writeDataStoreChange(buffer, helper, ((DataStoreChange) action).getNewValue());
                     break;
                 case 2:
                     helper.writeString(buf, ((DataStoreRemoval) action).getDataStoreName());
@@ -116,22 +100,7 @@ public class ClientboundDataStoreSerializer_v898 implements BedrockPacketSeriali
                     change.setDataStoreName(helper.readString(buf));
                     change.setProperty(helper.readString(buffer));
                     change.setUpdateCount((int) buffer.readUnsignedIntLE());
-
-                    type = VarInts.readUnsignedInt(buffer);
-
-                    switch (type) {
-                        case 0:
-                            change.setNewValue(buffer.readDoubleLE());
-                            break;
-                        case 1:
-                            change.setNewValue(buffer.readBoolean());
-                            break;
-                        case 2:
-                            change.setNewValue(helper.readString(buffer));
-                            break;
-                        default:
-                            throw new IllegalStateException("Invalid data store data type: " + type);
-                    }
+                    change.setNewValue(readDataStoreChange(buffer, helper));
                     return change;
                 case 2:
                     DataStoreRemoval removal = new DataStoreRemoval();
@@ -141,5 +110,58 @@ public class ClientboundDataStoreSerializer_v898 implements BedrockPacketSeriali
                     throw new UnsupportedOperationException("Unknown data store action");
             }
         }));
+    }
+
+    protected void writeDataStoreChange(ByteBuf buffer, BedrockCodecHelper helper, Object value) {
+        int type = value instanceof Boolean ? 1 : value instanceof Number ? 2 : value instanceof String ? 4 : value instanceof Map ? 6 : 0;
+
+        buffer.writeIntLE(type);
+
+        switch (type) {
+            case 0:
+                break;
+            case 1:
+                buffer.writeBoolean((boolean) value);
+                break;
+            case 2:
+                buffer.writeLongLE(((Number) value).longValue());
+                break;
+            case 4:
+                helper.writeString(buffer, (String) value);
+                break;
+            case 6:
+                VarInts.writeUnsignedInt(buffer, ((Map<?, ?>) value).size());
+                ((Map<?, ?>) value).forEach((k, v) -> {
+                    helper.writeString(buffer, (String) k);
+                    writeDataStoreChange(buffer, helper, v);
+                });
+                break;
+            default:
+                throw new IllegalStateException("Invalid data store change data type " + type);
+        }
+    }
+
+    protected Object readDataStoreChange(ByteBuf buffer, BedrockCodecHelper helper) {
+        int type = buffer.readIntLE();
+
+        switch (type) {
+            case 0:
+                return null;
+            case 1:
+                return buffer.readBoolean();
+            case 2:
+                return buffer.readLongLE();
+            case 4:
+                return helper.readString(buffer);
+            case 6:
+                int size = VarInts.readUnsignedInt(buffer);
+                Map<String, Object> values = new HashMap<>();
+                for (int i = 0; i < size; i++) {
+                    values.put(helper.readString(buffer), readDataStoreChange(buffer, helper));
+                }
+                return values;
+            default:
+                throw new IllegalStateException("Invalid data store change data type " + type);
+        }
     }
 }

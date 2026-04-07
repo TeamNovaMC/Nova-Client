@@ -1,7 +1,7 @@
 package org.cloudburstmc.protocol.bedrock.codec.v860.serializer;
 
 import io.netty.buffer.ByteBuf;
-import org.cloudburstmc.math.vector.Vector2f;
+
 import org.cloudburstmc.math.vector.Vector3f;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodecHelper;
 import org.cloudburstmc.protocol.bedrock.codec.v827.serializer.CameraInstructionSerializer_v827;
@@ -25,7 +25,10 @@ public class CameraInstructionSerializer_v860 extends CameraInstructionSerialize
             buf.writeFloatLE(splineInstruction.getTotalTime());
             buf.writeByte(splineInstruction.getType().ordinal());
             helper.writeArray(buf, splineInstruction.getCurve(), helper::writeVector3f);
-            helper.writeArray(buf, splineInstruction.getProgressKeyFrames(), helper::writeVector2f);
+            helper.writeArray(buf, splineInstruction.getProgressKeyFrames(), (buf2, frame) -> {
+                buf2.writeFloatLE(frame.getValue());
+                buf2.writeFloatLE(frame.getTime());
+            });
             helper.writeArray(buf, splineInstruction.getRotationOption(), (buf2, rotationOption) -> {
                 helper.writeVector3f(buf2, rotationOption.getKeyFrameValues());
                 buf2.writeFloatLE(rotationOption.getKeyFrameTimes());
@@ -43,13 +46,17 @@ public class CameraInstructionSerializer_v860 extends CameraInstructionSerialize
             CameraSplineType type = CameraSplineType.values()[buf.readUnsignedByte()];
             List<Vector3f> curve = new ArrayList<>();
             helper.readArray(buf, curve, helper::readVector3f);
-            List<Vector2f> progressKeyFrames = new ArrayList<>();
-            helper.readArray(buf, progressKeyFrames, helper::readVector2f);
+            List<CameraSplineInstruction.SplineProgressOption> progressKeyFrames = new ArrayList<>();
+            helper.readArray(buf, progressKeyFrames, buf2 -> {
+                float value = buf2.readFloatLE();
+                float time = buf2.readFloatLE();
+                return new CameraSplineInstruction.SplineProgressOption(value, time, null);
+            });
             List<CameraSplineInstruction.SplineRotationOption> rotationOption = new ArrayList<>();
             helper.readArray(buf, rotationOption, buf2 -> {
                 Vector3f keyFrameValues = helper.readVector3f(buf2);
                 float keyFrameTimes = buf2.readFloatLE();
-                return new CameraSplineInstruction.SplineRotationOption(keyFrameValues, keyFrameTimes);
+                return new CameraSplineInstruction.SplineRotationOption(keyFrameValues, keyFrameTimes, null);
             });
             return new CameraSplineInstruction(totalTime, type, curve, progressKeyFrames, rotationOption);
         }));

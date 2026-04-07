@@ -39,4 +39,6 @@ public class BiomeDefinitionChunkGenData {
      */
     @Nullable
     BiomeReplacementData biomeReplacementData;
+    @Nullable
+    Number villageType;
 }
