@@ -1,7 +1,7 @@
 package com.radiantbyte.novarelay.util
 
 import com.radiantbyte.novarelay.address.NovaAddress
-import com.radiantbyte.novarelay.config.EnhancedServerConfig
+import com.radiantbyte.novarelay.config.ServerConfig
 import java.net.InetAddress
 import java.util.regex.Pattern
 
@@ -17,7 +17,7 @@ object ServerCompatUtils {
         Pattern.compile(".*\\.cubecraft\\.net$", Pattern.CASE_INSENSITIVE),
         Pattern.compile(".*cubecraft.*", Pattern.CASE_INSENSITIVE)
     )
-    
+
     private val KNOWN_PROTECTED_IPS = setOf(
         "116.202.224.146",
         "135.181.42.192",
@@ -25,121 +25,48 @@ object ServerCompatUtils {
         "95.217.163.246"
     )
 
-    fun isProtectedServer(address: NovaAddress): Boolean {
-        return isProtectedHostname(address.hostName) || isProtectedIP(address.hostName)
-    }
+    fun isProtectedServer(address: NovaAddress): Boolean =
+        isProtectedHostname(address.hostName) || isProtectedIP(address.hostName)
 
-    fun isProtectedHostname(hostname: String): Boolean {
-        return PROTECTED_SERVER_PATTERNS.any { pattern ->
-            pattern.matcher(hostname).matches()
-        }
-    }
+    fun isProtectedHostname(hostname: String): Boolean =
+        PROTECTED_SERVER_PATTERNS.any { it.matcher(hostname).matches() }
 
     fun isProtectedIP(hostname: String): Boolean {
-        try {
-            val address = InetAddress.getByName(hostname)
-            val ip = address.hostAddress
-
-            if (KNOWN_PROTECTED_IPS.contains(ip)) {
-                return true
-            }
-
-            return isInProtectedIPRange(ip)
-            
-        } catch (e: Exception) {
-            return false
+        return try {
+            val ip = InetAddress.getByName(hostname).hostAddress
+            KNOWN_PROTECTED_IPS.contains(ip) || isInProtectedIPRange(ip)
+        } catch (_: Exception) {
+            false
         }
     }
 
     private fun isInProtectedIPRange(ip: String): Boolean {
         val parts = ip.split(".")
         if (parts.size != 4) return false
-        
-        try {
+        return try {
             val first = parts[0].toInt()
             val second = parts[1].toInt()
-            
-
-            return when (first) {
+            when (first) {
                 116 -> second in 202..203
                 135 -> second in 181..181
                 168 -> second in 119..119
-                95 -> second in 217..217
+                95  -> second in 217..217
                 else -> false
             }
-        } catch (e: NumberFormatException) {
-            return false
+        } catch (_: NumberFormatException) {
+            false
         }
     }
 
-    fun getRecommendedConfig(address: NovaAddress): EnhancedServerConfig {
-        if (!isProtectedServer(address)) {
-            return EnhancedServerConfig.FAST
-        }
-
+    fun getRecommendedConfig(address: NovaAddress): ServerConfig {
+        if (!isProtectedServer(address)) return ServerConfig.FAST
         val hostname = address.hostName.lowercase()
-        
         return when {
-            hostname.contains("nethergames") -> EnhancedServerConfig.AGGRESSIVE
-            hostname.contains("cubecraft") -> EnhancedServerConfig.AGGRESSIVE
-            hostname.matches(Regex(".*\\d+\\.aternos\\.me")) -> EnhancedServerConfig.DEFAULT
-            hostname.contains("aternos.me") && !hostname.matches(Regex(".*\\d+\\.aternos\\.me")) -> EnhancedServerConfig.FAST
-            else -> EnhancedServerConfig.AGGRESSIVE
+            hostname.contains("nethergames") -> ServerConfig.AGGRESSIVE
+            hostname.contains("cubecraft")   -> ServerConfig.AGGRESSIVE
+            hostname.matches(Regex(".*\\d+\\.aternos\\.me")) -> ServerConfig.DEFAULT
+            hostname.contains("aternos.me") && !hostname.matches(Regex(".*\\d+\\.aternos\\.me")) -> ServerConfig.FAST
+            else -> ServerConfig.AGGRESSIVE
         }
     }
-
-    fun extractServerInfo(hostname: String): ProtectedServerInfo? {
-        if (!isProtectedHostname(hostname)) {
-            return null
-        }
-        
-        val lowerHostname = hostname.lowercase()
-
-        val serverIdPattern = Pattern.compile("(\\w+)\\.aternos\\.(me|org|net)")
-        val matcher = serverIdPattern.matcher(lowerHostname)
-        
-        if (matcher.find()) {
-            val serverId = matcher.group(1)
-            val domain = matcher.group(2)
-            
-            return ProtectedServerInfo(
-                serverId = serverId,
-                domain = domain,
-                isNumericId = serverId.matches(Regex("\\d+")),
-                fullHostname = hostname
-            )
-        }
-        
-        return null
-    }
-
-    fun getConnectionTips(address: NovaAddress): List<String> {
-        if (!isProtectedServer(address)) {
-            return emptyList()
-        }
-        
-        val tips = mutableListOf<String>()
-        
-        tips.add("Protected server detected - using optimized connection settings")
-        tips.add("Connection may take longer due to DDoS protection")
-        tips.add("Multiple retry attempts will be made with exponential backoff")
-        
-        val serverInfo = extractServerInfo(address.hostName)
-        if (serverInfo != null) {
-            if (serverInfo.isNumericId) {
-                tips.add("Numeric server ID detected - using standard configuration")
-            } else {
-                tips.add("Custom server name detected - may have better stability")
-            }
-        }
-        
-        return tips
-    }
-
-    data class ProtectedServerInfo(
-        val serverId: String,
-        val domain: String,
-        val isNumericId: Boolean,
-        val fullHostname: String
-    )
 }

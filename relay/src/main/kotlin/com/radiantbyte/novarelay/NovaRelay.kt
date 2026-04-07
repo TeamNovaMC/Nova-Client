@@ -4,7 +4,7 @@ import com.radiantbyte.novarelay.NovaRelaySession.ClientSession
 import com.radiantbyte.novarelay.address.NovaAddress
 import com.radiantbyte.novarelay.address.inetSocketAddress
 import com.radiantbyte.novarelay.codec.CodecRegistry
-import com.radiantbyte.novarelay.config.EnhancedServerConfig
+import com.radiantbyte.novarelay.config.ServerConfig
 import com.radiantbyte.novarelay.connection.ConnectionManager
 import com.radiantbyte.novarelay.util.ServerCompatUtils
 import io.netty.bootstrap.ServerBootstrap
@@ -26,10 +26,9 @@ import kotlin.random.Random
 class NovaRelay(
     val localAddress: NovaAddress = NovaAddress("0.0.0.0", 19132),
     val advertisement: BedrockPong = DefaultAdvertisement,
-    val serverConfig: EnhancedServerConfig = EnhancedServerConfig.DEFAULT
+    val serverConfig: ServerConfig = ServerConfig.DEFAULT
 ) {
 
-    @Suppress("MemberVisibilityCanBePrivate")
     companion object {
 
         val DefaultCodec: BedrockCodec
@@ -46,10 +45,8 @@ class NovaRelay(
                 .maximumPlayerCount(20)
                 .subMotd("Nova Relay")
                 .nintendoLimited(false)
-
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
     val isRunning: Boolean
         get() = channelFuture != null
 
@@ -66,23 +63,9 @@ class NovaRelay(
         remoteAddress: NovaAddress = NovaAddress("geo.hivebedrock.network", 19132),
         onSessionCreated: NovaRelaySession.() -> Unit
     ): NovaRelay {
-        if (isRunning) {
-            return this
-        }
+        if (isRunning) return this
 
         this.remoteAddress = remoteAddress
-
-        if (ServerCompatUtils.isProtectedServer(remoteAddress)) {
-            println("Protected server detected: ${remoteAddress.hostName}")
-            val tips = ServerCompatUtils.getConnectionTips(remoteAddress)
-            tips.forEach { println("  - $it") }
-
-            val serverInfo = ServerCompatUtils.extractServerInfo(remoteAddress.hostName)
-            if (serverInfo != null) {
-                println("  - Server ID: ${serverInfo.serverId}")
-                println("  - Domain: ${serverInfo.domain}")
-            }
-        }
 
         advertisement
             .ipv4Port(localAddress.port)
@@ -116,7 +99,6 @@ class NovaRelay(
                     channel.attr(PacketDirection.ATTRIBUTE).set(PacketDirection.CLIENT_BOUND)
                     super.preInitChannel(channel)
                 }
-
             })
             .localAddress(localAddress.inetSocketAddress)
             .bind()
@@ -134,22 +116,12 @@ class NovaRelay(
         val address = remoteAddress ?: throw IllegalStateException("Remote address not set")
 
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val result = manager.connectToServer(address, onSessionCreated)
-                if (result.isFailure) {
-                    println("Failed to connect to server: ${result.exceptionOrNull()?.message}")
-                    result.exceptionOrNull()?.printStackTrace()
-                    novaRelaySession?.server?.disconnect("Failed to connect to server: ${result.exceptionOrNull()?.message}")
-                    novaRelaySession?.listeners?.forEach { listener ->
-                        runCatching {
-                            listener.onDisconnect("Connection failed: ${result.exceptionOrNull()?.message}")
-                        }
-                    }
+            val result = manager.connectToServer(address, onSessionCreated)
+            if (result.isFailure) {
+                novaRelaySession?.server?.disconnect("Failed to connect to server: ${result.exceptionOrNull()?.message}")
+                novaRelaySession?.listeners?.forEach { listener ->
+                    runCatching { listener.onDisconnect("Connection failed: ${result.exceptionOrNull()?.message}") }
                 }
-            } catch (e: Exception) {
-                println("Error during connection: ${e.message}")
-                e.printStackTrace()
-                novaRelaySession?.server?.disconnect("Connection error: ${e.message}")
             }
         }
     }
@@ -157,7 +129,6 @@ class NovaRelay(
     suspend fun connectToServerAsync(onSessionCreated: ClientSession.() -> Unit): Result<ClientSession> {
         val manager = connectionManager ?: return Result.failure(IllegalStateException("Connection manager not initialized"))
         val address = remoteAddress ?: return Result.failure(IllegalStateException("Remote address not set"))
-
         return manager.connectToServer(address, onSessionCreated)
     }
 
@@ -170,8 +141,6 @@ class NovaRelay(
             channelFuture = null
             novaRelaySession = null
             connectionManager = null
-        } catch (e: Exception) {
-            println("Error stopping NovaRelay: ${e.message}")
-        }
+        } catch (_: Exception) {}
     }
 }

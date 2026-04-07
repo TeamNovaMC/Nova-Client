@@ -4,11 +4,9 @@ import com.radiantbyte.novarelay.NovaRelaySession
 import com.radiantbyte.novarelay.address.NovaAddress
 import com.radiantbyte.novarelay.address.inetSocketAddress
 import com.radiantbyte.novarelay.client.ClientIdentification
-import com.radiantbyte.novarelay.config.EnhancedServerConfig
+import com.radiantbyte.novarelay.config.ServerConfig
 import com.radiantbyte.novarelay.util.ServerCompatUtils
-import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
-import io.netty.channel.ChannelFuture
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioDatagramChannel
 import kotlinx.coroutines.*
@@ -20,11 +18,11 @@ import org.cloudburstmc.netty.channel.raknet.config.RakChannelOption
 import org.cloudburstmc.protocol.bedrock.BedrockPeer
 import org.cloudburstmc.protocol.bedrock.PacketDirection
 import org.cloudburstmc.protocol.bedrock.netty.initializer.BedrockChannelInitializer
-import kotlin.random.Random
+import io.netty.bootstrap.Bootstrap
 
 class ConnectionManager(
     private val novaRelaySession: NovaRelaySession,
-    private val serverConfig: EnhancedServerConfig = EnhancedServerConfig.DEFAULT
+    private val serverConfig: ServerConfig = ServerConfig.DEFAULT
 ) {
 
     private val connectionAttempts = mutableMapOf<String, Long>()
@@ -51,18 +49,16 @@ class ConnectionManager(
         remoteAddress: NovaAddress,
         onSessionCreated: NovaRelaySession.ClientSession.() -> Unit
     ): Result<NovaRelaySession.ClientSession> = withContext(Dispatchers.IO) {
-        
+
         if (isConnecting) {
             return@withContext Result.failure(IllegalStateException("Already connecting to a server"))
         }
-        
+
         isConnecting = true
-        
+
         try {
             val isProtected = ServerCompatUtils.isProtectedServer(remoteAddress)
-            val config = if (isProtected) serverConfig else EnhancedServerConfig.FAST
-            
-            println("Connecting to ${remoteAddress.hostName}:${remoteAddress.port} (Protected: $isProtected)")
+            val config = if (isProtected) serverConfig else ServerConfig.FAST
 
             if (isProtected && config.enableConnectionThrottling) {
                 applyConnectionThrottling(remoteAddress.hostName, config)
@@ -72,48 +68,35 @@ class ConnectionManager(
             if (config.initialConnectionDelay > 0) {
                 delay(config.initialConnectionDelay)
             }
-            
+
             var lastException: Exception? = null
-            
+
             for (attempt in 0 until config.maxRetryAttempts) {
                 try {
-                    println("Connection attempt ${attempt + 1}/${config.maxRetryAttempts}")
-                    
                     val clientSession = attemptConnection(remoteAddress, config, onSessionCreated)
-                    println("Successfully connected to ${remoteAddress.hostName}:${remoteAddress.port}")
                     return@withContext Result.success(clientSession)
-                    
                 } catch (e: Exception) {
                     lastException = e
-                    println("Connection attempt ${attempt + 1} failed: ${e.message}")
-
-                    if (shouldNotRetry(e)) {
-                        break
-                    }
-
+                    if (shouldNotRetry(e)) break
                     if (attempt < config.maxRetryAttempts - 1) {
-                        val retryDelay = config.calculateRetryDelay(attempt)
-                        println("Retrying in ${retryDelay}ms...")
-                        delay(retryDelay)
+                        delay(config.calculateRetryDelay(attempt))
                     }
                 }
             }
-            
+
             Result.failure(lastException ?: Exception("Connection failed after ${config.maxRetryAttempts} attempts"))
-            
+
         } finally {
             isConnecting = false
         }
     }
 
-    private suspend fun applyConnectionThrottling(hostname: String, config: EnhancedServerConfig) {
+    private suspend fun applyConnectionThrottling(hostname: String, config: ServerConfig) {
         val lastAttempt = connectionAttempts[hostname]
         if (lastAttempt != null) {
             val timeSinceLastAttempt = System.currentTimeMillis() - lastAttempt
             if (timeSinceLastAttempt < config.timeBetweenConnectionAttempts) {
-                val waitTime = config.timeBetweenConnectionAttempts - timeSinceLastAttempt
-                println("Throttling connection to $hostname, waiting ${waitTime}ms...")
-                delay(waitTime)
+                delay(config.timeBetweenConnectionAttempts - timeSinceLastAttempt)
             }
         }
         connectionAttempts[hostname] = System.currentTimeMillis()
@@ -133,7 +116,6 @@ class ConnectionManager(
         if (currentCount >= MAX_CONNECTIONS_PER_WINDOW) {
             val waitTime = rateLimitResetTime[hostname]!! - currentTime
             if (waitTime > 0) {
-                println("Rate limit exceeded for $hostname, waiting ${waitTime}ms...")
                 delay(waitTime)
                 connectionCounts[hostname] = 0
                 rateLimitResetTime[hostname] = System.currentTimeMillis() + RATE_LIMIT_WINDOW_MS
@@ -145,45 +127,30 @@ class ConnectionManager(
 
     private suspend fun attemptConnection(
         remoteAddress: NovaAddress,
-        config: EnhancedServerConfig,
+        config: ServerConfig,
         onSessionCreated: NovaRelaySession.ClientSession.() -> Unit
     ): NovaRelaySession.ClientSession = suspendCancellableCoroutine { continuation ->
-
-        val isProtected = ServerCompatUtils.isProtectedServer(remoteAddress)
-        val clientConfig = if (isProtected) {
-            ClientIdentification.getEnhancedClientConfig()
-        } else {
-            ClientIdentification.getStandardClientConfig()
-        }
-
-        if (clientConfig.useRealisticTiming) {
-            val delay = ClientIdentification.getRealisticConnectionDelay()
-            println("Adding realistic connection delay: ${delay}ms")
-            CoroutineScope(Dispatchers.IO).launch {
-                delay(delay)
-            }
-        }
 
         if (eventLoopGroup == null || eventLoopGroup!!.isShuttingDown || eventLoopGroup!!.isShutdown) {
             eventLoopGroup = NioEventLoopGroup()
         }
-        
+
         val bootstrap = Bootstrap()
             .group(eventLoopGroup)
             .channelFactory(RakChannelFactory.client(NioDatagramChannel::class.java))
-            .option(RakChannelOption.RAK_PROTOCOL_VERSION, clientConfig.protocolVersion)
-            .option(RakChannelOption.RAK_GUID, clientConfig.guid)
+            .option(RakChannelOption.RAK_PROTOCOL_VERSION, 11)
+            .option(RakChannelOption.RAK_GUID, ClientIdentification.generateGUID())
             .option(RakChannelOption.RAK_CONNECT_TIMEOUT, config.connectionTimeout)
-            .option(RakChannelOption.RAK_SESSION_TIMEOUT, if (clientConfig.useRealisticTiming) ClientIdentification.getRealisticSessionTimeout() else config.sessionTimeout)
-            .option(RakChannelOption.RAK_COMPATIBILITY_MODE, clientConfig.compatibilityMode)
-            .option(RakChannelOption.RAK_UNCONNECTED_MAGIC, clientConfig.unconnectedMagic)
+            .option(RakChannelOption.RAK_SESSION_TIMEOUT, config.sessionTimeout)
+            .option(RakChannelOption.RAK_COMPATIBILITY_MODE, true)
+            .option(RakChannelOption.RAK_UNCONNECTED_MAGIC, ClientIdentification.createUnconnectedMagic())
             .option(RakChannelOption.RAK_MTU, 1400)
             .handler(object : BedrockChannelInitializer<NovaRelaySession.ClientSession>() {
-                
+
                 override fun createSession0(peer: BedrockPeer, subClientId: Int): NovaRelaySession.ClientSession {
                     return novaRelaySession.ClientSession(peer, subClientId)
                 }
-                
+
                 override fun initSession(clientSession: NovaRelaySession.ClientSession) {
                     novaRelaySession.client = clientSession
                     if (!continuation.isCompleted) {
@@ -191,14 +158,14 @@ class ConnectionManager(
                     }
                     onSessionCreated(clientSession)
                 }
-                
+
                 override fun preInitChannel(channel: Channel) {
                     channel.attr(PacketDirection.ATTRIBUTE).set(PacketDirection.SERVER_BOUND)
                     super.preInitChannel(channel)
                 }
             })
             .remoteAddress(remoteAddress.inetSocketAddress)
-        
+
         val connectFuture = bootstrap.connect()
 
         val timeoutJob = CoroutineScope(Dispatchers.IO).launch {
@@ -208,7 +175,7 @@ class ConnectionManager(
                 continuation.resumeWithException(Exception("Connection timeout after ${config.connectionTimeout}ms"))
             }
         }
-        
+
         connectFuture.addListener { future ->
             timeoutJob.cancel()
             if (!future.isSuccess && !continuation.isCompleted) {
@@ -217,7 +184,7 @@ class ConnectionManager(
                 )
             }
         }
-        
+
         continuation.invokeOnCancellation {
             timeoutJob.cancel()
             connectFuture.cancel(true)
@@ -226,14 +193,6 @@ class ConnectionManager(
 
     private fun shouldNotRetry(exception: Exception): Boolean {
         val message = exception.message?.lowercase() ?: ""
-        return when {
-            message.contains("incompatible") -> true
-            message.contains("already connected") -> true
-            message.contains("no free incoming connections") -> false
-            message.contains("connection request failed") -> false
-            message.contains("connection refused") -> false
-            message.contains("timeout") -> false
-            else -> false
-        }
+        return message.contains("incompatible") || message.contains("already connected")
     }
 }

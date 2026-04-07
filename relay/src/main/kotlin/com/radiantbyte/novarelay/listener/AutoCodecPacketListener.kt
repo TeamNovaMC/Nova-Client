@@ -2,7 +2,6 @@ package com.radiantbyte.novarelay.listener
 
 import com.radiantbyte.novarelay.NovaRelaySession
 import com.radiantbyte.novarelay.codec.CodecRegistry
-import com.radiantbyte.novarelay.codec.VersionDetector
 import com.radiantbyte.novarelay.definition.Definitions
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec
 import org.cloudburstmc.protocol.bedrock.codec.v729.serializer.InventoryContentSerializer_v729
@@ -18,26 +17,9 @@ class AutoCodecPacketListener(
 ) : NovaRelayPacketListener {
 
     companion object {
-
         private fun fetchCodecForProtocol(protocolVersion: Int): BedrockCodec {
-            val codec = CodecRegistry.getClosestCodec(protocolVersion)
-            
-            val minecraftVersion = CodecRegistry.getMinecraftVersion(codec.protocolVersion)
-            val supportedVersions = VersionDetector.getSupportedVersionsForProtocol(codec.protocolVersion)
-            
-            println("Selected codec for protocol $protocolVersion:")
-            println("  - Codec protocol: ${codec.protocolVersion}")
-            println("  - Minecraft version: ${codec.minecraftVersion}")
-            if (minecraftVersion != null) {
-                println("  - Primary version: $minecraftVersion")
-            }
-            if (supportedVersions.isNotEmpty()) {
-                println("  - Supported versions: ${supportedVersions.joinToString(", ")}")
-            }
-            
-            return codec
+            return CodecRegistry.getClosestCodec(protocolVersion)
         }
-
     }
 
     private fun patchCodecIfNeeded(codec: BedrockCodec): BedrockCodec {
@@ -54,9 +36,7 @@ class AutoCodecPacketListener(
     override fun beforeClientBound(packet: BedrockPacket): Boolean {
         if (packet is RequestNetworkSettingsPacket) {
             try {
-                val protocolVersion = packet.protocolVersion
-                val bedrockCodec = patchCodecIfNeeded(fetchCodecForProtocol(protocolVersion))
-                println("Using bedrock codec: ${bedrockCodec.protocolVersion} for client protocol: $protocolVersion")
+                val bedrockCodec = patchCodecIfNeeded(fetchCodecForProtocol(packet.protocolVersion))
 
                 novaRelaySession.server.codec = bedrockCodec
                 novaRelaySession.server.peer.codecHelper.apply {
@@ -78,9 +58,7 @@ class AutoCodecPacketListener(
 
                 novaRelaySession.clientBoundImmediately(networkSettingsPacket)
                 novaRelaySession.server.setCompression(PacketCompressionAlgorithm.ZLIB)
-                println("Client enabled compression: ZLIB with threshold 1")
             } catch (e: Exception) {
-                println("Failed to process network settings: ${e.message}")
                 e.printStackTrace()
                 novaRelaySession.server.disconnect("Failed to setup network settings: ${e.message}")
                 return true
@@ -89,5 +67,4 @@ class AutoCodecPacketListener(
         }
         return false
     }
-
 }

@@ -9,14 +9,9 @@ inline val NovaAddress.inetSocketAddress: InetSocketAddress
     get() {
         return try {
             val addresses = InetAddress.getAllByName(hostName)
-            if (addresses.isNotEmpty()) {
-                InetSocketAddress(addresses[0], port)
-            } else {
-                InetSocketAddress(hostName, port)
-            }
-        } catch (e: Exception) {
-            println("DNS resolution failed for $hostName, using unresolved address: ${e.message}")
+            if (addresses.isNotEmpty()) InetSocketAddress(addresses[0], port)
+            else InetSocketAddress(hostName, port)
+        } catch (_: Exception) {
             InetSocketAddress.createUnresolved(hostName, port)
         }
     }
-

@@ -21,7 +21,7 @@ import com.radiantbyte.novaclient.render.RenderOverlayView
 import com.radiantbyte.novarelay.NovaRelay
 import com.radiantbyte.novarelay.NovaRelaySession
 import com.radiantbyte.novarelay.address.NovaAddress
-import com.radiantbyte.novarelay.config.EnhancedServerConfig
+import com.radiantbyte.novarelay.config.ServerConfig
 import com.radiantbyte.novarelay.definition.Definitions
 import com.radiantbyte.novarelay.listener.AutoCodecPacketListener
 import com.radiantbyte.novarelay.listener.GamingPacketHandler
@@ -274,12 +274,12 @@ object Services {
         }
     }
 
-    private fun getServerConfig(captureModeModel: CaptureModeModel): EnhancedServerConfig {
+    private fun getServerConfig(captureModeModel: CaptureModeModel): ServerConfig {
         return when (captureModeModel.serverConfigType) {
-            ServerCompatUtils.ServerConfigType.FAST -> EnhancedServerConfig.FAST
-            ServerCompatUtils.ServerConfigType.DEFAULT -> EnhancedServerConfig.DEFAULT
-            ServerCompatUtils.ServerConfigType.AGGRESSIVE -> EnhancedServerConfig.AGGRESSIVE
-            ServerCompatUtils.ServerConfigType.STANDARD -> EnhancedServerConfig.DEFAULT
+            ServerCompatUtils.ServerConfigType.FAST -> ServerConfig.FAST
+            ServerCompatUtils.ServerConfigType.DEFAULT -> ServerConfig.DEFAULT
+            ServerCompatUtils.ServerConfigType.AGGRESSIVE -> ServerConfig.AGGRESSIVE
+            ServerCompatUtils.ServerConfigType.STANDARD -> ServerConfig.DEFAULT
         }
     }
 }
