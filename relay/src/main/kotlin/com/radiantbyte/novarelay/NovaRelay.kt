@@ -6,7 +6,6 @@ import com.radiantbyte.novarelay.address.inetSocketAddress
 import com.radiantbyte.novarelay.codec.CodecRegistry
 import com.radiantbyte.novarelay.config.ServerConfig
 import com.radiantbyte.novarelay.connection.ConnectionManager
-import com.radiantbyte.novarelay.util.ServerCompatUtils
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFuture
@@ -26,7 +25,7 @@ import kotlin.random.Random
 class NovaRelay(
     val localAddress: NovaAddress = NovaAddress("0.0.0.0", 19132),
     val advertisement: BedrockPong = DefaultAdvertisement,
-    val serverConfig: ServerConfig = ServerConfig.DEFAULT
+    val serverConfig: ServerConfig = ServerConfig()
 ) {
 
     companion object {
@@ -82,12 +81,7 @@ class NovaRelay(
                     return NovaRelaySession(peer, subClientId, this@NovaRelay)
                         .also {
                             novaRelaySession = it
-                            val config = if (remoteAddress != null && ServerCompatUtils.isProtectedServer(remoteAddress!!)) {
-                                ServerCompatUtils.getRecommendedConfig(remoteAddress!!)
-                            } else {
-                                serverConfig
-                            }
-                            connectionManager = ConnectionManager(it, config)
+                            connectionManager = ConnectionManager(it, serverConfig)
                             it.onSessionCreated()
                         }
                         .server

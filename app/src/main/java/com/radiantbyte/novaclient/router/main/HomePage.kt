@@ -102,7 +102,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.radiantbyte.novaclient.R
 import com.radiantbyte.novaclient.service.Services
-import com.radiantbyte.novaclient.util.ServerCompatUtils
 import com.radiantbyte.novaclient.util.LocalSnackbarHostState
 import com.radiantbyte.novaclient.util.MinecraftUtils
 import com.radiantbyte.novaclient.util.SnackbarHostStateScope
@@ -348,36 +347,6 @@ fun HomePageContent() {
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        val currentModel = mainScreenViewModel.captureModeModel.value
-                        if (currentModel.isProtectedServer()) {
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = NovaColors.Primary.copy(alpha = 0.1f)
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Text(
-                                        "🎯 Aternos Server Connected",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = NovaColors.Primary,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        "Server: ${currentModel.serverHostName}",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                    Text(
-                                        ServerCompatUtils.getStatusMessage(currentModel.serverConfigType),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = NovaColors.OnSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-
                         Text(
                             "To join, go to Minecraft's Friends tab and join through LAN. If LAN doesn't show up, you can add a new server in the Servers tab by entering the IP address and port provided below, then press Play.",
                             style = MaterialTheme.typography.bodyMedium
@@ -434,32 +403,7 @@ fun HomePageContent() {
                             }
                         }
 
-                        if (currentModel.isProtectedServer()) {
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = NovaColors.Secondary.copy(alpha = 0.1f)
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    Text(
-                                        "💡 Aternos Server Connection Tips:",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = NovaColors.Secondary,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    ServerCompatUtils.getTroubleshootingTips().take(3).forEach { tip ->
-                                        Text(
-                                            tip,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = NovaColors.OnSurfaceVariant
-                                        )
-                                    }
-                                }
-                            }
-                        }
+
                     }
                 },
                 confirmButton = {
@@ -809,9 +753,9 @@ private fun GameCard() {
                                         serverHostName = it
 
                                         if (it.isEmpty()) return@TextField
-                                        val updatedModel = captureModeModel.copy(serverHostName = it)
-                                            .withAutoDetectedServerConfig()
-                                        mainScreenViewModel.selectCaptureModeModel(updatedModel)
+                                        mainScreenViewModel.selectCaptureModeModel(
+                                            captureModeModel.copy(serverHostName = it)
+                                        )
                                     },
                                     keyboardOptions = KeyboardOptions(
                                         imeAction = ImeAction.Next
@@ -843,58 +787,7 @@ private fun GameCard() {
                                 )
                             }
 
-                            if (ServerCompatUtils.isProtectedServer(serverHostName) && !Services.isActive) {
-                                Card(
-                                    modifier = Modifier
-                                        .width(TextFieldDefaults.MinWidth),
-                                    shape = MaterialTheme.shapes.medium,
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = NovaColors.Primary.copy(alpha = 0.1f),
-                                        contentColor = NovaColors.Primary
-                                    )
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            Icon(
-                                                Icons.Outlined.Info,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp),
-                                                tint = NovaColors.Primary
-                                            )
-                                            Text(
-                                                "Aternos Server Detected",
-                                                style = MaterialTheme.typography.titleSmall,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
 
-                                        val serverInfo = ServerCompatUtils.extractServerInfo(serverHostName)
-                                        if (serverInfo != null) {
-                                            Text(
-                                                "Server: ${serverInfo.serverId}",
-                                                style = MaterialTheme.typography.bodySmall
-                                            )
-                                        }
-
-                                        Text(
-                                            ServerCompatUtils.getStatusMessage(captureModeModel.serverConfigType),
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-
-                                        Text(
-                                            ServerCompatUtils.getConfigDescription(captureModeModel.serverConfigType),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = NovaColors.OnSurfaceVariant
-                                        )
-                                    }
-                                }
-                            }
 
                             if (Services.isActive) {
                                 Card(

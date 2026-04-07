@@ -63,7 +63,7 @@ fun RealmsPageContent() {
                     val updatedModel = currentModel.copy(
                         serverHostName = host,
                         serverPort = portInt
-                    ).withAutoDetectedServerConfig()
+                    )
                     mainScreenViewModel.selectCaptureModeModel(updatedModel)
 
                     println("RealmsPage: Updated game settings - Host: $host, Port: $portInt")

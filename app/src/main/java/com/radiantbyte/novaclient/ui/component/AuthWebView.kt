@@ -9,6 +9,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.radiantbyte.novaclient.game.AccountManager
+import com.radiantbyte.novarelay.codec.CodecRegistry
 import net.raphimc.minecraftauth.MinecraftAuth
 import net.raphimc.minecraftauth.bedrock.BedrockAuthManager
 import net.raphimc.minecraftauth.msa.model.MsaDeviceCode
@@ -21,7 +22,7 @@ val enSuffix = "cHBJekl6R1YzUQ=="
 val deSuffix = String(Base64.decode(enSuffix, Base64.DEFAULT)).trim()
 val authId = "$auth-$deSuffix"
 
-private const val GAME_VERSION = "1.21.131"
+
 
 @SuppressLint("SetJavaScriptEnabled")
 class AuthWebView @JvmOverloads constructor(
@@ -45,7 +46,7 @@ class AuthWebView @JvmOverloads constructor(
                 httpClient.connectTimeout = 10000
                 httpClient.readTimeout = 10000
 
-                val authManager = BedrockAuthManager.create(httpClient, GAME_VERSION)
+                val authManager = BedrockAuthManager.create(httpClient, CodecRegistry.CURRENT_VERSION)
                     .login(
                         { client, config, cb -> DeviceCodeMsaAuthService(client, config, cb) },
                         Consumer<MsaDeviceCode> { deviceCode ->

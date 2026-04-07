@@ -1,5 +1,8 @@
 package com.radiantbyte.novaclient.util
 
+import com.radiantbyte.novarelay.codec.CodecRegistry
+
 object MinecraftUtils {
-    const val RECOMMENDED_VERSION = "v1.21.131"
+    val RECOMMENDED_VERSION: String
+        get() = "v${CodecRegistry.CURRENT_VERSION}"
 }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import com.google.gson.JsonParser
 import com.radiantbyte.novaclient.application.AppContext
 import com.radiantbyte.novaclient.service.RealmsManager
+import com.radiantbyte.novarelay.codec.CodecRegistry
 import com.radiantbyte.novarelay.util.AuthUtils
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -19,8 +20,6 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 object AccountManager {
-
-    private const val GAME_VERSION = "1.21.131"
 
     private val coroutineScope =
         CoroutineScope(Dispatchers.IO + CoroutineName("AccountManagerCoroutine"))
@@ -130,7 +129,7 @@ object AccountManager {
                 if (child.isFile && child.extension == "json") {
                     val account = BedrockAuthManager.fromJson(
                         httpClient,
-                        GAME_VERSION,
+                        CodecRegistry.CURRENT_VERSION,
                         JsonParser.parseString(child.readText()).asJsonObject
                     )
                     accounts.add(account)

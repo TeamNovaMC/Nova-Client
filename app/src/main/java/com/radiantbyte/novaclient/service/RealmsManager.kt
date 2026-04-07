@@ -5,6 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.radiantbyte.novarelay.codec.CodecRegistry
 import net.raphimc.minecraftauth.MinecraftAuth
 import net.raphimc.minecraftauth.bedrock.BedrockAuthManager
 import net.raphimc.minecraftauth.extra.realms.service.impl.BedrockRealmsService
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 object RealmsManager {
 
     private const val TAG = "RealmsManager"
-    private const val CLIENT_VERSION = "1.21.120"
+
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("RealmsManagerCoroutine"))
 
@@ -48,12 +49,12 @@ object RealmsManager {
 
         coroutineScope.launch {
             try {
-                Log.d(TAG, "Initializing Realms service with client version: $CLIENT_VERSION")
+                Log.d(TAG, "Initializing Realms service with client version: ${CodecRegistry.CURRENT_VERSION}")
                 val httpClient = MinecraftAuth.createHttpClient()
                 httpClient.connectTimeout = 10000
                 httpClient.readTimeout = 10000
 
-                realmsService = BedrockRealmsService(httpClient, CLIENT_VERSION, authManager.realmsXstsToken)
+                realmsService = BedrockRealmsService(httpClient, CodecRegistry.CURRENT_VERSION, authManager.realmsXstsToken)
                 Log.d(TAG, "Realms service initialized successfully")
 
                 refreshRealmsInternal()
@@ -78,7 +79,7 @@ object RealmsManager {
             return
         }
 
-        Log.d(TAG, "Starting Realms refresh with client version: $CLIENT_VERSION")
+        Log.d(TAG, "Starting Realms refresh with client version: ${CodecRegistry.CURRENT_VERSION}")
         _realmsState.value = RealmsLoadingState.Loading
 
         try {

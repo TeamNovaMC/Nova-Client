@@ -16,18 +16,17 @@ import com.radiantbyte.novaclient.game.GameSession
 import com.radiantbyte.novaclient.game.ModuleManager
 import com.radiantbyte.novaclient.game.module.visual.ESPModule
 import com.radiantbyte.novaclient.model.CaptureModeModel
+import com.radiantbyte.novaclient.model.GameSettingsModel
 import com.radiantbyte.novaclient.overlay.OverlayManager
 import com.radiantbyte.novaclient.render.RenderOverlayView
 import com.radiantbyte.novarelay.NovaRelay
 import com.radiantbyte.novarelay.NovaRelaySession
 import com.radiantbyte.novarelay.address.NovaAddress
-import com.radiantbyte.novarelay.config.ServerConfig
 import com.radiantbyte.novarelay.definition.Definitions
 import com.radiantbyte.novarelay.listener.AutoCodecPacketListener
 import com.radiantbyte.novarelay.listener.GamingPacketHandler
 import com.radiantbyte.novarelay.listener.OnlineLoginPacketListener
 import com.radiantbyte.novarelay.util.captureGamePacket
-import com.radiantbyte.novaclient.util.ServerCompatUtils
 import java.io.File
 import kotlin.concurrent.thread
 
@@ -76,30 +75,18 @@ object Services {
 
             System.gc()
             System.runFinalization()
-
-            Log.d("Services", "Network caches cleared")
-        } catch (e: Exception) {
-            Log.e("Services", "Error clearing network caches: ${e.message}")
-        }
+        } catch (_: Exception) {}
     }
 
     private fun on(context: Context, captureModeModel: CaptureModeModel) {
-        if (thread != null) {
-            return
-        }
+        if (thread != null) return
 
         novaRelay?.let { relay ->
             try {
-                if (relay.javaClass.methods.any { it.name == "stop" }) {
-                    relay.javaClass.getMethod("stop").invoke(relay)
-                }
-            } catch (e: Exception) {
-                Log.e("Services", "Error stopping existing NovaRelay: ${e.message}")
-            }
+                relay.stop()
+            } catch (_: Exception) {}
         }
         novaRelay = null
-
-        File(context.cacheDir, "token_cache.json")
 
         isActive = true
         handler.post {
@@ -130,35 +117,21 @@ object Services {
 
             runCatching {
                 clearNetworkCaches()
-                
+
                 val remoteAddress = NovaAddress(
                     captureModeModel.serverHostName,
                     captureModeModel.serverPort
                 )
-                
-                val serverConfig = getServerConfig(captureModeModel)
-                novaRelay = if (captureModeModel.isProtectedServer() && captureModeModel.enableServerOptimizations) {
-                    NovaRelay(
-                        localAddress = NovaAddress("0.0.0.0", 19132),
-                        serverConfig = serverConfig
-                    ).capture(remoteAddress = remoteAddress) {
-                        initModules(this)
-                        listeners.add(AutoCodecPacketListener(this))
-                        selectedAccount?.let { OnlineLoginPacketListener(this, it) }
-                            ?.let { listeners.add(it) }
-                        listeners.add(GamingPacketHandler(this))
-                    }
-                } else {
-                    captureGamePacket(
-                        localAddress = NovaAddress("0.0.0.0", 19132),
-                        remoteAddress = remoteAddress
-                    ) {
-                        initModules(this)
-                        listeners.add(AutoCodecPacketListener(this))
-                        selectedAccount?.let { OnlineLoginPacketListener(this, it) }
-                            ?.let { listeners.add(it) }
-                        listeners.add(GamingPacketHandler(this))
-                    }
+
+                novaRelay = captureGamePacket(
+                    localAddress = NovaAddress("0.0.0.0", 19132),
+                    remoteAddress = remoteAddress
+                ) {
+                    initModules(this)
+                    listeners.add(AutoCodecPacketListener(this))
+                    selectedAccount?.let { OnlineLoginPacketListener(this, it) }
+                        ?.let { listeners.add(it) }
+                    listeners.add(GamingPacketHandler(this))
                 }
             }.exceptionOrNull()?.let {
                 it.printStackTrace()
@@ -173,17 +146,8 @@ object Services {
 
             novaRelay?.let { relay ->
                 try {
-                    relay.novaRelaySession?.client?.disconnect()
-                    relay.novaRelaySession?.server?.disconnect()
-                    
-                    if (relay.javaClass.methods.any { it.name == "stop" }) {
-                        relay.javaClass.getMethod("stop").invoke(relay)
-                        Log.d("Services", "NovaRelay connection stopped successfully")
-                    }
-                } catch (e: Exception) {
-                    Log.e("Services", "Error stopping NovaRelay: ${e.message}")
-                    e.printStackTrace()
-                }
+                    relay.stop()
+                } catch (_: Exception) {}
             }
             novaRelay = null
 
@@ -191,9 +155,7 @@ object Services {
 
             try {
                 Thread.sleep(500)
-            } catch (e: Exception) {
-                Log.e("Services", "Error during cleanup delay: ${e.message}")
-            }
+            } catch (_: Exception) {}
 
             handler.post {
                 OverlayManager.dismiss()
@@ -202,8 +164,6 @@ object Services {
             isActive = false
             thread?.interrupt()
             thread = null
-
-            Log.d("Services", "NovaRelay service stopped and cleaned up")
         }
     }
 
@@ -220,13 +180,11 @@ object Services {
         novaRelaySession.listeners.add(com.radiantbyte.novarelay.listener.VersionTrackingListener() { protocol, version ->
             detectedProtocolVersion = protocol
             detectedMinecraftVersion = version
-            Log.i("Services", "Client version: Minecraft $version (Protocol $protocol)")
         })
 
         for (module in ModuleManager.modules) {
             module.session = session
         }
-        Log.e("Services", "Init session")
     }
 
     private fun setupOverlay(context: Context) {
@@ -271,15 +229,6 @@ object Services {
         renderView?.let { view ->
             windowManager?.removeView(view)
             renderView = null
-        }
-    }
-
-    private fun getServerConfig(captureModeModel: CaptureModeModel): ServerConfig {
-        return when (captureModeModel.serverConfigType) {
-            ServerCompatUtils.ServerConfigType.FAST -> ServerConfig.FAST
-            ServerCompatUtils.ServerConfigType.DEFAULT -> ServerConfig.DEFAULT
-            ServerCompatUtils.ServerConfigType.AGGRESSIVE -> ServerConfig.AGGRESSIVE
-            ServerCompatUtils.ServerConfigType.STANDARD -> ServerConfig.DEFAULT
         }
     }
 }
